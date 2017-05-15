@@ -143,8 +143,8 @@ class HT16K33Matrix {
         // Returns:
         //  HT16K33Matrix instance - errors throw
 
-        if (impI2Cbus == null) throw "HT16K33Matrix requires a non-null imp I2C object";
-        if (i2cAddress < 0x00 || i2cAddress > 0xFF) throw "HT16K33Matrix requires a valid I2C address";
+        if (impI2Cbus == null) throw "HT16K33Matrix() requires a non-null imp I2C object";
+        if (i2cAddress < 0x00 || i2cAddress > 0xFF) throw "HT16K33Matrix() requires a valid I2C address";
 
         _led = impI2Cbus;
         _ledAddress = i2cAddress << 1;
@@ -178,7 +178,9 @@ class HT16K33Matrix {
         if (_rotationAngle != 0) _rotateFlag = true;
 
         // Set the brightness (which also wipes and power-cycles the display)
+        powerUp();
         setBrightness(brightness);
+        clearDisplay();
     }
 
     function setBrightness(brightness = 15) {
@@ -190,29 +192,8 @@ class HT16K33Matrix {
         if (brightness < 0) brightness = 0;
         brightness = brightness + 224;
 
-        // Wipe the display completely first, so preserve what's in '_buffer'
-        local sbuffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-        for (local i = 0 ; i < 8 ; ++i) {
-            sbuffer[i] = _buffer[i];
-        }
-
-        // Clear the LED matrix
-        clearDisplay();
-
-        // Power cycle the LED matrix
-        powerDown();
-        powerUp();
-
         // Write the new brightness value to the HT16K33
         _led.write(_ledAddress, brightness.tochar() + "\x00");
-
-        // Restore what's was in '_buffer'
-        for (local i = 0 ; i < 8 ; ++i) {
-            _buffer[i] = sbuffer[i];
-        }
-
-        // Write buffer contents back to the LED matrix
-        _writeDisplay();
     }
 
     function clearDisplay() {
@@ -232,7 +213,6 @@ class HT16K33Matrix {
         _inverseVideoFlag = state;
         if (_debug) server.log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
         _writeDisplay();
-
     }
 
     function powerDown() {
