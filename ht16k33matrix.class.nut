@@ -13,7 +13,7 @@ class HT16K33Matrix {
     // Written by Tony Smith (@smittytone)
     // Issued under the MIT license (MIT)
 
-    static VERSION = "1.2.1";
+    static VERSION = "1.2.2";
 
     // Proportionally space character set
     // NOTE Squirrel doesn't support array consts
@@ -148,6 +148,8 @@ class HT16K33Matrix {
 
         _led = impI2Cbus;
         _ledAddress = i2cAddress << 1;
+
+        if (typeof debug != "bool") debug = false;
         _debug = debug;
 
         _buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
@@ -177,7 +179,7 @@ class HT16K33Matrix {
         _rotationAngle = angle;
         if (_rotationAngle != 0) _rotateFlag = true;
 
-        // Set the brightness (which also wipes and power-cycles the display)
+        // Power up and set the brightness
         powerUp();
         setBrightness(brightness);
         clearDisplay();
@@ -419,7 +421,7 @@ class HT16K33Matrix {
         //   3. Integer ink color: 1 = white, 0 = black (NOTE inverse video mode reverses this)
         //   4. Boolean indicating whether a pixel already color ink should be inverted
         // Returns:
-        //   Nothing
+        //   this
 
         if (x < 0 || x > 7) {
             server.error("HT16K33Matrix.plot() X co-ordinate out of range (0-7)");
