@@ -131,6 +131,7 @@ class HT16K33Matrix {
 
     _aStrings = null;
     _aTimer = null;
+    _aCb = null;
     _aSliceIndex = 0;
     _aCharIndex = 0;
     _aSeqIndex = 0;
@@ -581,9 +582,9 @@ class HT16K33Matrix {
 
     // ********** EXPERIMENTAL ***********
 
-    function animate(strings = null) {
-        // Display stringOne and stringTwo as per displayLine()
-        // but with the two strings displayed alternately to provide
+    function animate(strings = null, completeCallback = null) {
+        // Display the strings in the array as per displayLine()
+        // but with the strings displayed alternately to provide
         // a basic animation feature as the two scroll
 
         if (strings == null || typeof strings != "array") {
@@ -610,9 +611,10 @@ class HT16K33Matrix {
 
         // Set/initialise the animation variables
         _aStrings = strings;
-        _aCharIndex = 0;
-        _aSliceIndex = 0;
-        _aSeqIndex = 0;
+        _aCharIndex = 0;        // Character in the string
+        _aSliceIndex = 0;       // Column inset at which the frame starts
+        _aSeqIndex = 0;         // Which string to display
+        _aCb = completeCallback;
 
         // Start animating
         _animateFrame();
@@ -620,7 +622,7 @@ class HT16K33Matrix {
 
     function stopAnimate() {
         // Stop the animation flow
-        if (_aTimer != nill) imp.cancelwakeup(_aTimer);
+        if (_aTimer != null) imp.cancelwakeup(_aTimer);
         _aTimer = null;
     }
 
@@ -633,17 +635,15 @@ class HT16K33Matrix {
         local sliceIndex = this._aSliceIndex;
         local charIndex = this._aCharIndex;
 
-        if (this._aSeqIndex > _astrings.len()) this._aSeqIndex = 0;
-
         // Get the current string
-        local frameString = _aStrings[this._seqIndex];
+        local frameString = _aStrings[this._aSeqIndex];
 
         do {
             local c;
 
             try {
                 // Get the current character from the current string
-                c = frameString[this._aCharIndex];
+                c = frameString[charIndex];
             } catch(err) {
                 break;
             }
@@ -685,11 +685,8 @@ class HT16K33Matrix {
         if (this._rotateFlag) this._buffer = _rotateMatrix(this._buffer, this._rotationAngle);
         _writeDisplay();
 
-        // Set the next frame's initial row to one plus the current one
-        this._aSliceIndex++;
-
         // Load in the current glyph to see if we're at its end
-        local c = wString[this._aCharIndex];
+        local c = frameString[this._aCharIndex];
 
         if (c < 32) {
             // User-defined character?
@@ -715,9 +712,22 @@ class HT16K33Matrix {
 
         // If we still have sufficient characters to animate onto the matrix,
         // set the next frame to be rendered in 0.1s' time
-        if (this._aCharIndex < wString.len() - 1) {
+        if (this._aCharIndex < frameString.len() - 1) {
+            // Move on to the next string
             _aSeqIndex++;
-            _aTimer = imp.wakeup(0.1, _animateFrame.bindenv(this));
+
+            if (_aSeqIndex == _aStrings.len()) {
+                // We've run through the x strings, so go back to the first
+                // and move on a column
+                _aSeqIndex = 0;
+                this._aSliceIndex++;
+            }
         }
+        else
+        {
+            _aCb();
+        }
+
+        _aTimer = imp.wakeup(0.1, _animateFrame.bindenv(this));
     }
 }
