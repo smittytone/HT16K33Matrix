@@ -8,7 +8,7 @@ Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http:/
 
 ### 1.2.1
 
-- Rename *defineChar()* and *displaChar()*, respectively, *defineCharacter()* and *displayCharacter()*. The old method names are retained for backward compatibility.
+- Rename *defineChar()* and *displayChar()*, respectively, *defineCharacter()* and *displayCharacter()*. The old method names are retained for backward compatibility.
 
 ### 1.2.0
 
@@ -185,7 +185,7 @@ The display can be turned off by calling *powerDown()*.
 
 ## powerUp()
 
-The display can be turned on by calling *powerup()*.
+The display can be turned on by calling *powerUp()*.
 
 ## License
 
