@@ -189,9 +189,11 @@ class HT16K33Matrix {
     }
 
     function setBrightness(brightness = 15) {
-        // Parameters:
-        //   1. Display brightness, 1-15 (default: 15)
-        // Returns: Nothing
+        // Parameters: 1. Display brightness, 1-15 (default: 15)
+        // Returns:    Nothing
+        if (typeof brightness != "integer" && typeof brightness != "float") brightness = 15;
+        brightness = brightness.tointeger();
+
         if (brightness > 15) {
             brightness = 15;
             if (_debug) server.error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
@@ -202,9 +204,8 @@ class HT16K33Matrix {
             if (_debug) server.error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
         }
 
-        brightness = brightness + 224;
         if (_debug) server.log("Brightness set to " + brightness);
-
+        brightness = brightness + 224;
 
         // Write the new brightness value to the HT16K33
         _led.write(_ledAddress, brightness.tochar() + "\x00");
