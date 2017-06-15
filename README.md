@@ -4,29 +4,24 @@ Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http:/
 
 ## Release Notes
 
-### 1.2.2
+- 1.2.2
+    - Streamline brightness control as per other HT16K33 libraries.
 
-- Streamline brightness control as per other HT16K33 libraries.
+- 1.2.1
+    - Rename *defineChar()* and *displayChar()*, respectively, *defineCharacter()* and *displayCharacter()*. The old method names are retained for backward compatibility.
 
-### 1.2.1
+- 1.2.0
+    - Add *plot()* method.
+    - Add *draw()* method.
+    - Moved handling of matrix rotation from each method to the final output method.
 
-- Rename *defineChar()* and *displayChar()*, respectively, *defineCharacter()* and *displayCharacter()*. The old method names are retained for backward compatibility.
+- 1.1.0
+    - The class incorporates its own Ascii character set, from 32 (&nbsp;) to 127 (&deg;). This character set is now proportionally spaced for a more aesthetically pleasing output. Code built using version 1.0.0 should be checked, especially if you are assuming non-proportionally spaced characters. Ascii code 127 is now a degrees sign, not a copyright symbol.
+    - The class now supports up to 32 user-definable characters, assigned to the Ascii code values 0 through 31.
+    - The optional angle passed into the second parameter of *init()* may now be a value in degrees, but this will not cause problems for existing code. However, *displayIcon()* now takes an array of 1-8 8-bit values, each specifying a *column* (bit 7 at the top) of the character, not a row.
 
-### 1.2.0
-
-- Add *plot()* method.
-- Add *draw()* method.
-- Moved handling of matrix rotation from each method to the final output method.
-
-### 1.1.0
-
-- The class incorporates its own Ascii character set, from 32 (&nbsp;) to 127 (&deg;). This character set is now proportionally spaced for a more aesthetically pleasing output. Code built using version 1.0.0 should be checked, especially if you are assuming non-proportionally spaced characters. Ascii code 127 is now a degrees sign, not a copyright symbol.
-- The class now supports up to 32 user-definable characters, assigned to the Ascii code values 0 through 31.
-- The optional angle passed into the second parameter of *init()* may now be a value in degrees, but this will not cause problems for existing code. However, *displayIcon()* now takes an array of 1-8 8-bit values, each specifying a *column* (bit 7 at the top) of the character, not a row.
-
-### 1.0.0
-
-- Initial release
+- 1.0.0
+    - Initial release
 
 ## Class Usage
 
