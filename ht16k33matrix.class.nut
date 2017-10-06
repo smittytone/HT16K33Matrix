@@ -1,11 +1,11 @@
 // CLASS CONSTANTS
 // HT16K33 registers and HT16K33-specific variables
-const HT16K33_REGISTER_DISPLAY_ON  = "\x81"
-const HT16K33_REGISTER_DISPLAY_OFF = "\x80"
-const HT16K33_REGISTER_SYSTEM_ON   = "\x21"
-const HT16K33_REGISTER_SYSTEM_OFF  = "\x20"
-const HT16K33_DISPLAY_ADDRESS      = "\x00"
-const HT16K33_I2C_ADDRESS          = 0x70
+const HT16K33_MAT_CLASS_REGISTER_DISPLAY_ON  = "\x81"
+const HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF = "\x80"
+const HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON   = "\x21"
+const HT16K33_MAT_CLASS_REGISTER_SYSTEM_OFF  = "\x20"
+const HT16K33_MAT_CLASS_DISPLAY_ADDRESS      = "\x00"
+const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
 
 class HT16K33Matrix {
 
@@ -468,14 +468,14 @@ class HT16K33Matrix {
 
     function powerDown() {
         if (_debug) server.log("Turning the HT16K33 Matrix off");
-        _led.write(_ledAddress, HT16K33_REGISTER_DISPLAY_OFF);
-        _led.write(_ledAddress, HT16K33_REGISTER_SYSTEM_OFF);
+        _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF);
+        _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_OFF);
     }
 
     function powerUp() {
         if (_debug) server.log("Turning the HT16K33 Matrix on");
-        _led.write(_ledAddress, HT16K33_REGISTER_SYSTEM_ON);
-        _led.write(_ledAddress, HT16K33_REGISTER_DISPLAY_ON);
+        _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON);
+        _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_ON);
     }
 
     // ****** PRIVATE FUNCTIONS - DO NOT CALL ******
@@ -484,7 +484,7 @@ class HT16K33Matrix {
         // Takes the contents of _buffer and writes it to the LED matrix
         // Uses function processByte() to manipulate regular values to
         // Adafruit 8x8 matrix's format
-        local dataString = HT16K33_DISPLAY_ADDRESS;
+        local dataString = HT16K33_MAT_CLASS_DISPLAY_ADDRESS;
         local writedata = clone(_buffer);
         if (_rotationAngle != 0) writedata = _rotateMatrix(writedata, _rotationAngle);
 
