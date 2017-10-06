@@ -14,7 +14,7 @@ class HT16K33Matrix {
     // Written by Tony Smith (@smittytone)
     // Issued under the MIT license (MIT)
 
-    static VERSION = "1.2.2";
+    static VERSION = "1.2.3";
 
     // Proportionally space character set
     // NOTE Squirrel doesn't support array consts
