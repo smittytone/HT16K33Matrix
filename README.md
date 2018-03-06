@@ -1,9 +1,11 @@
-# HT16K33Matrix 1.2.3
+# HT16K33Matrix 1.2.4
 
 Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http://www.adafruit.com/products/1854) based on the Holtek HT16K33 controller. The LED communicates over any imp I&sup2;C bus.
 
 ## Release Notes
 
+- 1.2.4
+    - Store user-definable characters in a table rather than an array to conserve memory
 - 1.2.3
     - Minor code change: rename constants to be class-specific
 - 1.2.2

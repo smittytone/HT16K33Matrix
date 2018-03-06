@@ -14,7 +14,7 @@ class HT16K33Matrix {
     // Written by Tony Smith (@smittytone)
     // Issued under the MIT license (MIT)
 
-    static VERSION = "1.2.3";
+    static VERSION = "1.2.4";
 
     // Proportionally space character set
     // NOTE Squirrel doesn't support array consts
@@ -156,7 +156,8 @@ class HT16K33Matrix {
         _debug = debug;
 
         _buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-        _defchars = array(32, -1);
+        //_defchars = array(32, -1);
+        _defchars = {};
     }
 
     function init(brightness = 15, angle = 0) {
@@ -401,7 +402,7 @@ class HT16K33Matrix {
             return;
         }
 
-        if (_defchars[asciiCode] != -1 && _debug) server.log("Character " + asciiCode + " already defined so redefining it");
+        if (asciiCode in _defchars && _debug) server.log("Character " + asciiCode + " already defined so redefining it");
 
         local matrix = [];
         for (local i = 0 ; i < glyphMatrix.len() ; ++i) {
@@ -409,7 +410,12 @@ class HT16K33Matrix {
         }
 
         if (_debug) server.log("Setting user-defined character " + asciiCode);
-        _defchars.insert(asciiCode, matrix);
+        //_defchars.insert(asciiCode, matrix);
+        if (asciiCode in _defchars) {
+            _defchars[asciiCode] = matrix;
+        } else {
+            _defchars[asciiCode] <- matrix;
+        }
     }
 
     function plot(x, y, ink = 1, xor = false) {
