@@ -1,9 +1,12 @@
-# HT16K33Matrix 1.2.4
+# HT16K33Matrix 1.2.5 #
 
 Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http://www.adafruit.com/products/1854) based on the Holtek HT16K33 controller. The LED communicates over any imp I&sup2;C bus.
 
-## Release Notes
+## Release Notes ##
 
+- 1.2.5
+    - Add support for `seriallog.nut`
+        - **Note** Class will log to *server.log()* if *seriallog* is not present
 - 1.2.4
     - Store user-definable characters in a table rather than an array to conserve memory
 - 1.2.3
@@ -23,9 +26,9 @@ Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http:/
 - 1.0.0
     - Initial release
 
-## Class Usage
+## Class Usage ##
 
-## Constructor: HT16K33Matrix(*impI2cBus[ i2cAddress][, debug]*)
+### Constructor: HT16K33Matrix(*impI2cBus[ i2cAddress][, debug]*) ###
 
 To instantiate an HT16K33Matrix object pass the I&sup2;C bus to which the display is connected and, optionally, its I&sup2;C address. If no address is passed, the default value, `0x70` will be used. Pass an alternative address if you have changed the display’s address using the solder pads on rear of the LED’s circuit board.
 
@@ -45,9 +48,9 @@ hardware.i2c89.configure(CLOCK_SPEED_400_KHZ);
 led <- HT16K33Matrix(hardware.i2c89, 0x70, true);
 ```
 
-## Class Methods
+## Class Methods ##
 
-## init(*[brightness][, angle]*)
+### init(*[brightness][, angle]*) ###
 
 Call *init()* to set the matrix’s initial settings. All the parameters are optional.
 
@@ -66,7 +69,7 @@ led.init(15, 2);
 led.init(8, -90);
 ```
 
-## displayIcon(*glyphMatrix[, center]*)
+### displayIcon(*glyphMatrix[, center]*) ###
 
 Call *displayIcon()* to write an non-standard character or graphic to the matrix. The character is passed as an array containing one to eight 8-bit integer values, each value a bit pattern for one of the *columns* making up the character. Each column value’s bits are set or unset according to the diagram below, ie. bit 0 is the topmost pixel of the column and bit 7 is the lowest pixel of the column.
 
@@ -84,7 +87,7 @@ local smiley = [0x3C, 0x42, 0x95, 0xA1, 0xA1, 0x95, 0x42, 0x3C];
 led.displayIcon(smiley);
 ```
 
-## displayLine(*line*)
+### displayLine(*line*) ###
 
 Call *displayLine()* to write a string to the matrix. The characters (one or more) comprising the string will scroll leftward. If no string is passed, or an empty string is passed, the function returns with no effect.
 
@@ -94,7 +97,7 @@ local text = "The quick brown fox jumped over the lazy dog";
 led.displayline(text);
 ```
 
-## displayCharacter(*asciiValue[, center]*)
+### displayCharacter(*asciiValue[, center]*) ###
 
 Call *displayCharacter()* to write an Ascii character to the matrix. The value is optional; if no value is specified, the display will be set to display a space character. Unless the matrix is set to inverse video mode, this has the same effect as *clearDisplay()*.
 
@@ -103,7 +106,7 @@ Call *displayCharacter()* to write an Ascii character to the matrix. The value i
 led.displayCharacter(65);
 ```
 
-## defineCharacter(*asciiCode, glyphMatrix*)
+### defineCharacter(*asciiCode, glyphMatrix*) ###
 
 You can save user-defined characters for future use using *defineCharacter()*. The first parameter is a numeric code to identify the character: permitted values are 0 through 31.
 
@@ -120,7 +123,7 @@ local displayString = "Help! I'm being chased by a...     + smileyChar.tochar() 
 led.displayLine(displayString);
 ```
 
-## plot(*x, y, color[, xor]*)
+### plot(*x, y, color[, xor]*) ###
 
 This method sets the pixel at co-ordinates (x,y) to the specified *color*: 1 (lit) or 0 (dark). If the matrix is in inverse-video mode *(see below)* these color values are automatically inverted.
 
@@ -144,15 +147,15 @@ if (x == 0 || x == 7) {
 led.draw();
 ```
 
-## draw()
+### draw() ###
 
 This method causes the contents of the display’s buffer to be rendered on the display. See *plot()* for more information.
 
-## clearDisplay()
+### clearDisplay() ###
 
 Call *clearDisplay()* to blank the matrix.
 
-## setInverseVideo(*state*)
+### setInverseVideo(*state*) ###
 
 Call *setInverseVideo()* to specify whether the characters on the matrix should be displayed in inverse video (dark on light) or standard video (light on dark). Pass `true` to select inverse video mode, `false` to select standard video. If no value is passed, inverse mode is selected automatically.
 
@@ -166,7 +169,7 @@ led.setInverseVideo(true);
 led.displayLine(text);
 ```
 
-## setBrightness(*brightness*)
+### setBrightness(*brightness*) ###
 
 Call *setBrightness()* to set the matrix’s brightness (duty cycle) to a value between 0 (dim) and 15 (maximum). The value is optional; the matrix will be set to maximum brightness if no value is passed.
 
@@ -176,14 +179,14 @@ Call *setBrightness()* to set the matrix’s brightness (duty cycle) to a value 
 led.setBrightness(8);
 ```
 
-## powerDown()
+### powerDown() ###
 
 The display can be turned off by calling *powerDown()*.
 
-## powerUp()
+### powerUp() ###
 
 The display can be turned on by calling *powerUp()*.
 
-## License
+## License ##
 
 The HTK16K33Matrix library is licensed under the [MIT License](./LICENSE).

@@ -14,7 +14,7 @@ class HT16K33Matrix {
     // Written by Tony Smith (@smittytone)
     // Issued under the MIT license (MIT)
 
-    static VERSION = "1.2.4";
+    static VERSION = "1.2.5";
 
     // Proportionally space character set
     // NOTE Squirrel doesn't support array consts
@@ -128,6 +128,7 @@ class HT16K33Matrix {
     _rotateFlag = false;
     _inverseVideoFlag = false;
     _debug = false;
+    _logger = null;
 
     _aStrings = null;
     _aTimer = null;
@@ -158,6 +159,12 @@ class HT16K33Matrix {
         _buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
         //_defchars = array(32, -1);
         _defchars = {};
+
+        // Select logging target, stored in '_logger' - this will point to 'seriallog' if 'seriallog.nut' has been
+        // loaded BEFORE HT16K33Matrix is instantiated.
+        // NOTE 'seriallog' also logs via server.log() as well as serial,
+        //      so logs will not be lost if 'seriallog' is not configured
+        if ("seriallog" in getroottable()) { _logger = seriallog; } else { _logger = server; }
     }
 
     function init(brightness = 15, angle = 0) {
@@ -197,15 +204,15 @@ class HT16K33Matrix {
 
         if (brightness > 15) {
             brightness = 15;
-            if (_debug) server.error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
+            if (_debug) _logger.error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
         }
 
         if (brightness < 0) {
             brightness = 0;
-            if (_debug) server.error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
+            if (_debug) _logger.error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
         }
 
-        if (_debug) server.log("Brightness set to " + brightness);
+        if (_debug) _logger.log("Brightness set to " + brightness);
         brightness = brightness + 224;
 
         // Write the new brightness value to the HT16K33
@@ -226,7 +233,7 @@ class HT16K33Matrix {
 
         if (typeof state != "bool") state = true;
         _inverseVideoFlag = state;
-        if (_debug) server.log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
+        if (_debug) _logger.log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
         _writeDisplay();
     }
 
@@ -240,12 +247,12 @@ class HT16K33Matrix {
         // Returns: nothing
 
         if (glyphMatrix == null || typeof glyphMatrix != "array") {
-            if (_debug) server.error("HT16K33Matrix.displayIcon() passed undefined icon array");
+            if (_debug) _logger.error("HT16K33Matrix.displayIcon() passed undefined icon array");
             return;
         }
 
         if (glyphMatrix.len() < 1 || glyphMatrix.len() > 8) {
-            if (_debug) server.error("HT16K33Matrix.displayIcon() passed incorrectly sized icon array");
+            if (_debug) _logger.error("HT16K33Matrix.displayIcon() passed incorrectly sized icon array");
             return;
         }
 
@@ -308,7 +315,7 @@ class HT16K33Matrix {
         // Returns: nothing
 
         if (line == null || line == "") {
-            if (_debug) server.error("HT16K33Matrix.displayLine() sent a null or zero-length string");
+            if (_debug) _logger.error("HT16K33Matrix.displayLine() sent a null or zero-length string");
             return;
         }
 
@@ -316,7 +323,7 @@ class HT16K33Matrix {
             local glyph;
             if (character < 32) {
                 if (_defchars[character] == -1 || (typeof _defchars[character] != "array")) {
-                    if (_debug) server.log("Use of undefined character (" + character + ") in HT16K33Matrix.displayLine()");
+                    if (_debug) _logger.log("Use of undefined character (" + character + ") in HT16K33Matrix.displayLine()");
                     glyph = clone(_pcharset[0]);
                 } else {
                     glyph = clone(_defchars[character]);
@@ -339,7 +346,7 @@ class HT16K33Matrix {
                         if (index + increment < line.len()) {
                             if (line[index + increment] < 32) {
                                 if (_defchars[line[index + increment]] == -1 || (typeof _defchars[line[index + increment]] != "array")) {
-                                    if (_debug) server.log("Use of undefined character (" + line[index + increment] + ") in HT16K33Matrix.displayLine()");
+                                    if (_debug) _logger.log("Use of undefined character (" + line[index + increment] + ") in HT16K33Matrix.displayLine()");
                                     glyphToDraw = clone(_pcharset[0]);
                                 } else {
                                     glyphToDraw = clone(_defchars[line[index + increment]]);
@@ -388,28 +395,28 @@ class HT16K33Matrix {
         // Returns: nothing
 
         if (glyphMatrix == null || typeof glyphMatrix != "array") {
-            if (_debug) server.error("HT16K33Matrix.defineChar() passed undefined icon array");
+            if (_debug) _logger.error("HT16K33Matrix.defineChar() passed undefined icon array");
             return;
         }
 
         if (glyphMatrix.len() < 1 || glyphMatrix.len() > 8) {
-            if (_debug) server.error("HT16K33Matrix.defineChar() passed incorrectly sized icon array");
+            if (_debug) _logger.error("HT16K33Matrix.defineChar() passed incorrectly sized icon array");
             return;
         }
 
         if (asciiCode < 0 || asciiCode > 31) {
-            if (_debug) server.error("HT16K33Matrix.defineChar() passed an incorrect character code");
+            if (_debug) _logger.error("HT16K33Matrix.defineChar() passed an incorrect character code");
             return;
         }
 
-        if (asciiCode in _defchars && _debug) server.log("Character " + asciiCode + " already defined so redefining it");
+        if (asciiCode in _defchars && _debug) _logger.log("Character " + asciiCode + " already defined so redefining it");
 
         local matrix = [];
         for (local i = 0 ; i < glyphMatrix.len() ; ++i) {
             matrix.append(_flip(glyphMatrix[i]));
         }
 
-        if (_debug) server.log("Setting user-defined character " + asciiCode);
+        if (_debug) _logger.log("Setting user-defined character " + asciiCode);
         //_defchars.insert(asciiCode, matrix);
         if (asciiCode in _defchars) {
             _defchars[asciiCode] = matrix;
@@ -429,12 +436,12 @@ class HT16K33Matrix {
         //   this
 
         if (x < 0 || x > 7) {
-            server.error("HT16K33Matrix.plot() X co-ordinate out of range (0-7)");
+            _logger.error("HT16K33Matrix.plot() X co-ordinate out of range (0-7)");
             return;
         }
 
         if (y < 0 || y > 7) {
-            server.error("HT16K33Matrix.plot() Y co-ordinate out of range (0-7)");
+            _logger.error("HT16K33Matrix.plot() Y co-ordinate out of range (0-7)");
             return;
         }
 
@@ -473,13 +480,13 @@ class HT16K33Matrix {
     }
 
     function powerDown() {
-        if (_debug) server.log("Turning the HT16K33 Matrix off");
+        if (_debug) _logger.log("Turning the HT16K33 Matrix off");
         _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF);
         _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_OFF);
     }
 
     function powerUp() {
-        if (_debug) server.log("Turning the HT16K33 Matrix on");
+        if (_debug) _logger.log("Turning the HT16K33 Matrix on");
         _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON);
         _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_ON);
     }
@@ -595,13 +602,13 @@ class HT16K33Matrix {
         // a basic animation feature as the two scroll
 
         if (strings == null || typeof strings != "array") {
-            if (_debug) server.error("HT16K33Matrix.animate() takes an array of strings");
+            if (_debug) _logger.error("HT16K33Matrix.animate() takes an array of strings");
             return;
         }
 
         // 'animate()' needs at least two strings
         if (strings.len() < 2) {
-            if (_debug) server.error("HT16K33Matrix.animate() takes an array of two or more strings");
+            if (_debug) _logger.error("HT16K33Matrix.animate() takes an array of two or more strings");
             return;
         }
 
@@ -611,7 +618,7 @@ class HT16K33Matrix {
             local b = strings[i];
 
             if (a.len() != b.len()) {
-                if (_debug) server.error("HT16K33Matrix.animate() takes an array of strings of equal length");
+                if (_debug) _logger.error("HT16K33Matrix.animate() takes an array of strings of equal length");
                 return;
             }
         }
