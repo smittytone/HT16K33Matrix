@@ -5,7 +5,7 @@ Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http:/
 ## Release Notes ##
 
 - 1.2.5
-    - Add support for `seriallog.nut`
+    - Add support for [`seriallog.nut`](https://github.com/smittytone/generic/blob/master/seriallog.nut) to enable serial logging if the application makes use of it
         - **Note** Class will log to *server.log()* if *seriallog* is not present
 - 1.2.4
     - Store user-definable characters in a table rather than an array to conserve memory
