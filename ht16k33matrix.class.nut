@@ -11,10 +11,12 @@ class HT16K33Matrix {
 
     // Squirrel class for 1.2-inch 8x8 LED matrix displays driven by the HT16K33 controller
     // For example: http://www.adafruit.com/products/1854
+    // Bus: I2C
+    // Availibility: Device
     // Written by Tony Smith (@smittytone)
     // Issued under the MIT license (MIT)
 
-    static VERSION = "1.2.5";
+    static VERSION = "1.2.6";
 
     // Proportionally space character set
     // NOTE Squirrel doesn't support array consts
@@ -140,12 +142,12 @@ class HT16K33Matrix {
 
     constructor(impI2Cbus = null, i2cAddress = 0x70, debug = false) {
         // Parameters:
-        //  1. Whichever configured imp I2C bus is to be used for the HT16K33
-        //  2. The HT16K33's I2C address (default: 0x70)
-        //  3. Boolean - set/unset to log/silence error messages
+        //   1. Whichever configured imp I2C bus is to be used for the HT16K33
+        //   2. The HT16K33's I2C address (default: 0x70)
+        //   3. Boolean - set/unset to log/silence error messages
         //
         // Returns:
-        //  HT16K33Matrix instance - errors throw
+        //   HT16K33Matrix instance - errors throw
 
         if (impI2Cbus == null) throw "HT16K33Matrix() requires a non-null imp I2C object";
         if (i2cAddress < 0x00 || i2cAddress > 0xFF) throw "HT16K33Matrix() requires a valid I2C address";
@@ -157,7 +159,6 @@ class HT16K33Matrix {
         _debug = debug;
 
         _buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-        //_defchars = array(32, -1);
         _defchars = {};
 
         // Select logging target, stored in '_logger' - this will point to 'seriallog' if 'seriallog.nut' has been
@@ -171,7 +172,8 @@ class HT16K33Matrix {
         // Parameters:
         //   1. Display brightness, 1-15 (default: 15)
         //   2. Display auto-rotation angle, 0 to -360 degrees (default: 0)
-        // Returns: Nothing
+        // Returns:
+        //   Nothing
 
         // Angle range can be -360 to + 360 - ignore values beyond this
         if (angle < -360 || angle > 360) angle = 0;
@@ -197,8 +199,11 @@ class HT16K33Matrix {
     }
 
     function setBrightness(brightness = 15) {
-        // Parameters: 1. Display brightness, 1-15 (default: 15)
-        // Returns:    Nothing
+        // Parameters:
+        //   1. Display brightness, 1-15 (default: 15)
+        // Returns:
+        //    Nothing
+
         if (typeof brightness != "integer" && typeof brightness != "float") brightness = 15;
         brightness = brightness.tointeger();
 
@@ -220,8 +225,11 @@ class HT16K33Matrix {
     }
 
     function clearDisplay() {
-        // Parameters: None
-        // Returns: Nothing
+        // Parameters:
+        //   None
+        // Returns:
+        //   Nothing
+
         _buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
         _writeDisplay();
     }
@@ -229,7 +237,8 @@ class HT16K33Matrix {
     function setInverseVideo(state = true) {
         // Parameters:
         //   1. Boolean: whether inverse video is set (true) or unset (false)
-        // Returns: Nothing
+        // Returns:
+        //   Nothing
 
         if (typeof state != "bool") state = true;
         _inverseVideoFlag = state;
@@ -244,7 +253,8 @@ class HT16K33Matrix {
         //      The data is passed as columns
         //   2. Boolean indicating whether the icon should be displayed
         //      centred on the screen
-        // Returns: nothing
+        // Returns:
+        //   Nothing
 
         if (glyphMatrix == null || typeof glyphMatrix != "array") {
             if (_debug) _logger.error("HT16K33Matrix.displayIcon() passed undefined icon array");
@@ -258,15 +268,10 @@ class HT16K33Matrix {
 
         _buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        for (local i = 0 ; i < glyphMatrix.len() ; ++i) {
+        for (local i = 0 ; i < glyphMatrix.len() ; i++) {
             local a = i;
             if (center) a = i + ((8 - glyphMatrix.len()) / 2).tointeger();
-
-            if (_inverseVideoFlag) {
-                _buffer[a] = ~glyphMatrix[i];
-            } else {
-                _buffer[a] = glyphMatrix[i];
-            }
+            _buffer[a] = _inverseVideoFlag ? ~glyphMatrix[i] : glyphMatrix[i];
         }
 
         _writeDisplay();
@@ -277,7 +282,8 @@ class HT16K33Matrix {
         // Parameters:
         //   1. Character Ascii code (default: 32 [space])
         //   2. Boolean indicating whether to center the character (true) or left-align (false) (default: false)
-        // Returns: nothing
+        // Returns:
+        //   Nothing
 
         displayChar(asciiValue, center);
     }
@@ -285,8 +291,10 @@ class HT16K33Matrix {
     function displayChar(asciiValue = 32, center = false) {
         local inputMatrix;
         if (asciiValue < 32) {
+             // A user-definable character has been chosen
              inputMatrix = clone(_defchars[asciiValue]);
         } else {
+            // A standard character has been chosen
             asciiValue = asciiValue - 32;
             if (asciiValue < 0 || asciiValue > _alphaCount) asciiValue = 0;
             inputMatrix = clone(_pcharset[asciiValue]);
@@ -297,12 +305,7 @@ class HT16K33Matrix {
         for (local i = 0 ; i < inputMatrix.len() ; ++i) {
             local a = i;
             if (center) a = i + ((8 - inputMatrix.len()) / 2).tointeger();
-
-            if (_inverseVideoFlag) {
-                _buffer[a] = _flip(~inputMatrix[i]);
-            } else {
-                _buffer[a] = _flip(inputMatrix[i]);
-            }
+            _buffer[a] = _inverseVideoFlag ? _flip(~inputMatrix[i]) : _flip(inputMatrix[i]);
         }
 
         _writeDisplay();
@@ -312,7 +315,8 @@ class HT16K33Matrix {
         // Bit-scroll through the characters in the variable ‘line’
         // Parameters:
         //   1. String of text
-        // Returns: nothing
+        // Returns:
+        //   Nothing
 
         if (line == null || line == "") {
             if (_debug) _logger.error("HT16K33Matrix.displayLine() sent a null or zero-length string");
@@ -338,7 +342,7 @@ class HT16K33Matrix {
                 local glyphToDraw = glyph;
                 local increment = 1;
                 local outputFrame = [0,0,0,0,0,0,0,0];
-                for (local k = 0 ; k < 8 ; ++k) {
+                for (local k = 0 ; k < 8 ; k++) {
                     if (cursor < glyphToDraw.len()) {
                         outputFrame[k] = _flip(glyphToDraw[cursor]);
                         ++cursor;
@@ -355,27 +359,19 @@ class HT16K33Matrix {
                                 glyphToDraw = clone(_pcharset[line[index + increment] - 32]);
                                 glyphToDraw.append(0x00);
                             }
-                            ++increment;
+                            increment++;
                             cursor = 1;
                             outputFrame[k] = _flip(glyphToDraw[0]);
                         }
                     }
                 }
 
-                for (local k = 0 ; k < 8 ; ++k) {
-                    if (_inverseVideoFlag) {
-                        _buffer[k] = ~outputFrame[k];
-                    } else {
-                        _buffer[k] = outputFrame[k];
-                    }
+                for (local k = 0 ; k < 8 ; k++) {
+                    _buffer[k] = _inverseVideoFlag ? ~outputFrame[k] : outputFrame[k];
                 }
 
                 // Pause between frames according to level of rotation
-                if (_rotationAngle == 0) {
-                    imp.sleep(0.060);
-                } else {
-                    imp.sleep(0.045);
-                }
+                imp.sleep(_rotationAngle == 0 ? 0.060 : 0.045);
 
                 _writeDisplay();
             }
@@ -383,17 +379,18 @@ class HT16K33Matrix {
     }
 
     function defineCharacter(asciiCode = 0, glyphMatrix = null) {
-        defineChar(asciiCode, glyphMatrix);
-    }
-
-    function defineChar(asciiCode = 0, glyphMatrix = null) {
         // Set a user-definable char for later use
         // Parameters:
         //   1. Character Ascii code 0-31 (default: 0)
         //   2. Array of 1-8 8-bit values defining a pixel image
         //      The data is passed as columns
-        // Returns: nothing
+        // Returns:
+        //   Nothing
 
+        defineChar(asciiCode, glyphMatrix);
+    }
+
+    function defineChar(asciiCode = 0, glyphMatrix = null) {
         if (glyphMatrix == null || typeof glyphMatrix != "array") {
             if (_debug) _logger.error("HT16K33Matrix.defineChar() passed undefined icon array");
             return;
@@ -412,12 +409,12 @@ class HT16K33Matrix {
         if (asciiCode in _defchars && _debug) _logger.log("Character " + asciiCode + " already defined so redefining it");
 
         local matrix = [];
-        for (local i = 0 ; i < glyphMatrix.len() ; ++i) {
+        for (local i = 0 ; i < glyphMatrix.len() ; i++) {
             matrix.append(_flip(glyphMatrix[i]));
         }
 
         if (_debug) _logger.log("Setting user-defined character " + asciiCode);
-        //_defchars.insert(asciiCode, matrix);
+
         if (asciiCode in _defchars) {
             _defchars[asciiCode] = matrix;
         } else {
@@ -476,6 +473,7 @@ class HT16K33Matrix {
     }
 
     function draw() {
+        // Write out the buffer to the display
         _writeDisplay();
     }
 
@@ -501,7 +499,7 @@ class HT16K33Matrix {
         local writedata = clone(_buffer);
         if (_rotationAngle != 0) writedata = _rotateMatrix(writedata, _rotationAngle);
 
-        for (local i = 0 ; i < 8 ; ++i) {
+        for (local i = 0 ; i < 8 ; i++) {
             dataString = dataString + (_processByte(writedata[i])).tochar() + "\x00";
         }
 
@@ -514,7 +512,7 @@ class HT16K33Matrix {
         local a = 0;
         local b = 0;
 
-        for (local i = 0 ; i < 8 ; ++i) {
+        for (local i = 0 ; i < 8 ; i++) {
             a = value & (1 << i);
             if (a > 0) b = b + (1 << (7 - i));
         }
@@ -531,11 +529,11 @@ class HT16K33Matrix {
         local lineValue = 0;
         local outputMatrix = [0,0,0,0,0,0,0,0];
 
-        // Note: it's quicker to have three case-specific
-        // code blocks than a single, generic block
+        // NOTE It's quicker to have three case-specific
+        //      code blocks than a single, generic block
         switch(angle) {
             case 1:
-                for (local y = 0 ; y < 8 ; ++y) {
+                for (local y = 0 ; y < 8 ; y++) {
                     lineValue = inputMatrix[y];
                     for (local x = 7 ; x > -1 ; --x) {
                         a = lineValue & (1 << x);
@@ -545,7 +543,7 @@ class HT16K33Matrix {
                 break;
 
             case 2:
-                for (local y = 0 ; y < 8 ; ++y) {
+                for (local y = 0 ; y < 8 ; y++) {
                     lineValue = inputMatrix[y];
                     for (local x = 7 ; x > -1 ; --x) {
                         a = lineValue & (1 << x);
@@ -555,7 +553,7 @@ class HT16K33Matrix {
                 break;
 
             case 3:
-                for (local y = 0 ; y < 8 ; ++y) {
+                for (local y = 0 ; y < 8 ; y++) {
                     lineValue = inputMatrix[y];
                     for (local x = 7 ; x > -1 ; --x) {
                         a = lineValue & (1 << x);
