@@ -30,7 +30,7 @@ Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http:/
 
 ## Class Usage ##
 
-### Constructor: HT16K33Matrix(*impI2cBus[ i2cAddress][, debug]*) ###
+### Constructor: HT16K33Matrix(*impI2cBus[, i2cAddress][, debug]*) ###
 
 To instantiate an HT16K33Matrix object pass the I&sup2;C bus to which the display is connected and, optionally, its I&sup2;C address. If no address is passed, the default value, `0x70` will be used. Pass an alternative address if you have changed the display’s address using the solder pads on rear of the LED’s circuit board.
 
