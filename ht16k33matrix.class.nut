@@ -249,7 +249,7 @@ class HT16K33Matrix {
 	function displayIcon(glyphMatrix, center = false) {
 		// Displays a custom character
 		// Parameters:
-		//   1. Array of 1-8 8-bit values defining a pixel image
+		//   1. Array/string/blob of 1-8 8-bit values defining a pixel image
 		//      The data is passed as columns
 		//   2. Boolean indicating whether the icon should be displayed
 		//      centred on the screen
@@ -257,7 +257,7 @@ class HT16K33Matrix {
 		//   Nothing
 
 		local type = typeof glyphMatrix;
-		if (glyphMatrix == null || (type != "array" && type != "string")) {
+		if (glyphMatrix == null || (type != "array" && type != "string" && type != "blob")) {
 			if (_debug) _logger.error("HT16K33Matrix.displayIcon() passed undefined icon array");
 			return;
 		}
