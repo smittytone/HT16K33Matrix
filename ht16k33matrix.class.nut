@@ -385,7 +385,7 @@ class HT16K33Matrix {
 		// Set a user-definable char for later use
 		// Parameters:
 		//   1. Character Ascii code 0-31 (default: 0)
-		//   2. Array or string of 1-8 8-bit values defining a pixel image
+		//   2. Array, string or blob of 1-8 8-bit values defining a pixel image
 		//      The data is passed as columns 
 		// Returns:
 		//   Nothing
@@ -395,7 +395,7 @@ class HT16K33Matrix {
 
 	function defineChar(asciiCode = 0, glyphMatrix = null) {
 		local type = typeof glyphMatrix;
-		if (glyphMatrix == null || (type != "array" && type != "string")) {
+		if (glyphMatrix == null || (type != "array" && type != "string" && type != "blob")) {
 			if (_debug) _logger.error("HT16K33Matrix.defineChar() passed undefined icon array");
 			return;
 		}
