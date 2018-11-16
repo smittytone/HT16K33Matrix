@@ -2,34 +2,6 @@
 
 Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http://www.adafruit.com/products/1854) based on the Holtek HT16K33 controller. The LED communicates over any imp I&sup2;C bus.
 
-## Release Notes ##
-
-- 1.3.0
-    - Optimisations: use blobs and strings in place of arrays where possible.
-- 1.2.6
-    - Code improvements; additional comments.
-- 1.2.5
-    - Add support for [`seriallog.nut`](https://github.com/smittytone/generic/blob/master/seriallog.nut) to enable serial logging if the application makes use of it.
-        - **Note** Class will log to *server.log()* if *seriallog* is not present.
-- 1.2.4
-    - Store user-definable characters in a table rather than an array to conserve memory.
-- 1.2.3
-    - Minor code change: rename constants to be class-specific.
-- 1.2.2
-    - Streamline brightness control as per other HT16K33 libraries.
-- 1.2.1
-    - Rename *defineChar()* and *displayChar()*, respectively, *defineCharacter()* and *displayCharacter()*. The old method names are retained for backward compatibility.
-- 1.2.0
-    - Add *plot()* method.
-    - Add *draw()* method.
-    - Moved handling of matrix rotation from each method to the final output method.
-- 1.1.0
-    - The class incorporates its own Ascii character set, from 32 (&nbsp;) to 127 (&deg;). This character set is now proportionally spaced for a more aesthetically pleasing output. Code built using version 1.0.0 should be checked, especially if you are assuming non-proportionally spaced characters. Ascii code 127 is now a degrees sign, not a copyright symbol.
-    - The class now supports up to 32 user-definable characters, assigned to the Ascii code values 0 through 31.
-    - The optional angle passed into the second parameter of *init()* may now be a value in degrees, but this will not cause problems for existing code. However, *displayIcon()* now takes an array of 1-8 8-bit values, each specifying a *column* (bit 7 at the top) of the character, not a row.
-- 1.0.0
-    - Initial release.
-
 ## Class Usage ##
 
 ### Constructor: HT16K33Matrix(*impI2cBus[, i2cAddress][, debug]*) ###
@@ -190,6 +162,34 @@ The display can be turned off by calling *powerDown()*.
 ### powerUp() ###
 
 The display can be turned on by calling *powerUp()*.
+
+## Release Notes ##
+
+- 1.3.0 &mdash; *16 November 2018*
+    - Optimisations: use blobs and strings in place of arrays where possible.
+- 1.2.6 &mdash; *June 2018*
+    - Code improvements; additional comments.
+- 1.2.5 &mdash; *May 2018*
+    - Add support for [`seriallog.nut`](https://github.com/smittytone/generic/blob/master/seriallog.nut) to enable serial logging if the application makes use of it.
+        - **Note** Class will log to *server.log()* if *seriallog* is not present.
+- 1.2.4 &mdash; *March 2018*
+    - Store user-definable characters in a table rather than an array to conserve memory.
+- 1.2.3 &mdash; *October 2017*
+    - Minor code change: rename constants to be class-specific.
+- 1.2.2 &mdash; *May 2017*
+    - Streamline brightness control as per other HT16K33 libraries.
+- 1.2.1 &mdash; *April 2017*
+    - Rename *defineChar()* and *displayChar()*, respectively, *defineCharacter()* and *displayCharacter()*. The old method names are retained for backward compatibility.
+- 1.2.0
+    - Add *plot()* method.
+    - Add *draw()* method.
+    - Moved handling of matrix rotation from each method to the final output method.
+- 1.1.0
+    - The class incorporates its own Ascii character set, from 32 (&nbsp;) to 127 (&deg;). This character set is now proportionally spaced for a more aesthetically pleasing output. Code built using version 1.0.0 should be checked, especially if you are assuming non-proportionally spaced characters. Ascii code 127 is now a degrees sign, not a copyright symbol.
+    - The class now supports up to 32 user-definable characters, assigned to the Ascii code values 0 through 31.
+    - The optional angle passed into the second parameter of *init()* may now be a value in degrees, but this will not cause problems for existing code. However, *displayIcon()* now takes an array of 1-8 8-bit values, each specifying a *column* (bit 7 at the top) of the character, not a row.
+- 1.0.0
+    - Initial release.
 
 ## License ##
 
