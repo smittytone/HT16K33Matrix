@@ -16,7 +16,7 @@ class HT16K33Matrix {
 	// Written by Tony Smith (@smittytone)
 	// Issued under the MIT license (MIT)
 
-	static VERSION = "1.3.0";
+	static VERSION = "1.3.1";
 
 	// Proportionally space character set
 	// NOTE Squirrel doesn't support array consts
@@ -460,7 +460,7 @@ class HT16K33Matrix {
 			// We want to set the pixel
 			local bit = row & (1 << (7 - y));
 			if (bit > 0 && xor) {
-				// Pixel is already set, but xor is true so clear the pixel
+				// Pixel is already set, but 'xor' is true so clear the pixel
 				row = row & (0xFF - (1 << (7 - y)));
 			} else {
 				// Pixel is clear so set it
@@ -470,7 +470,7 @@ class HT16K33Matrix {
 			// We want to clear the pixel
 			local bit = row & (1 << (7 - y));
 			if (bit == 0 && xor) {
-				// Pixel is already clear, but xor is true so invert the pixel
+				// Pixel is already clear, but 'xor' is true so invert the pixel
 				row = row | (1 << (7 - y));
 			} else {
 				// Pixel is set so clear it
