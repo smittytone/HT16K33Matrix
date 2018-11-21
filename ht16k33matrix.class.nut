@@ -231,6 +231,13 @@ class HT16K33Matrix {
 		//   Nothing
 
 		_buffer = blob(8);
+
+		if (_inverseVideoFlag) {
+            for (local i = 0 ; i < 8 ; i++) {
+                _buffer[i] = 0xFF;
+            }
+        }
+
 		_writeDisplay();
 	}
 
@@ -241,8 +248,8 @@ class HT16K33Matrix {
 		//   Nothing
 
 		if (typeof state != "bool") state = true;
-		_inverseVideoFlag = state;
 		if (_debug) _logger.log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
+		_inverseVideoFlag = state;
 		_writeDisplay();
 	}
 
@@ -268,6 +275,12 @@ class HT16K33Matrix {
 		}
 
 		_buffer = blob(8);
+
+		if (_inverseVideoFlag) {
+            for (local i = 0 ; i < 8 ; i++) {
+                _buffer[i] = 0xFF;
+            }
+        }
 
 		for (local i = 0 ; i < glyphMatrix.len() ; i++) {
 			local a = i;
@@ -303,6 +316,12 @@ class HT16K33Matrix {
 
 		_buffer = blob(8);
 
+		if (_inverseVideoFlag) {
+            for (local i = 0 ; i < 8 ; i++) {
+                _buffer[i] = 0xFF;
+            }
+        }
+
 		for (local i = 0 ; i < inputMatrix.len() ; i++) {
 			local a = i;
 			if (center) a = i + ((8 - inputMatrix.len()) / 2).tointeger();
@@ -337,14 +356,21 @@ class HT16K33Matrix {
 				glyph = _pcharset[character - 32];
 				
 				// Add a blank column spacer
-				glyph = glyph + "\x00";
+				glyph = glyph + (_inverseVideoFlag ? "\xFF" : "\x00");
 			}
 
 			foreach (column, columnValue in glyph) {
 				local cursor = column;
 				local glyphToDraw = glyph;
 				local increment = 1;
-				local outputFrame = [0,0,0,0,0,0,0,0];
+				local outputFrame = blob(8);
+
+				if (_inverseVideoFlag) {
+            		for (local i = 0 ; i < 8 ; i++) {
+                		_buffer[i] = 0xFF;
+            		}
+        		}
+
 				for (local k = 0 ; k < 8 ; k++) {
 					if (cursor < glyphToDraw.len()) {
 						outputFrame[k] = _flip(glyphToDraw[cursor]);
@@ -360,7 +386,7 @@ class HT16K33Matrix {
 								}
 							} else {
 								glyphToDraw = _pcharset[line[index + increment] - 32];
-								glyphToDraw = glyphToDraw + "\x00";
+								glyphToDraw = glyphToDraw + (_inverseVideoFlag ? "\xFF" : "\x00");
 							}
 							increment++;
 							cursor = 1;
@@ -456,6 +482,7 @@ class HT16K33Matrix {
 		if (_inverseVideoFlag) ink = ((ink == 1) ? 0 : 1);
 
 		local row = _buffer[x];
+
 		if (ink == 1) {
 			// We want to set the pixel
 			local bit = row & (1 << (7 - y));
