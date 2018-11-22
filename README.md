@@ -165,7 +165,7 @@ The display can be turned on by calling *powerUp()*.
 
 ## Release Notes ##
 
-- 1.3.1 &mdash; *Unreleased*
+- 1.3.1 &mdash; *22 November 2018*
     - Fix inverse video
 - 1.3.0 &mdash; *16 November 2018*
     - Optimisations: use blobs and strings in place of arrays where possible.
