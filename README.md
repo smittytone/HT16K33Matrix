@@ -2,6 +2,8 @@
 
 Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http://www.adafruit.com/products/1854) based on the Holtek HT16K33 controller. The LED communicates over any imp I&sup2;C bus.
 
+*See [Release Notes](#release-notes) for version information*
+
 ## Class Usage ##
 
 ### Constructor: HT16K33Matrix(*impI2cBus[, i2cAddress][, debug]*) ###
