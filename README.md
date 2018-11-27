@@ -1,4 +1,4 @@
-# HT16K33Matrix 1.3.1 #
+# HT16K33Matrix 1.3.2 #
 
 Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http://www.adafruit.com/products/1854) based on the Holtek HT16K33 controller. The LED communicates over any imp I&sup2;C bus.
 
@@ -167,6 +167,8 @@ The display can be turned on by calling *powerUp()*.
 
 ## Release Notes ##
 
+- 1.3.2 &mdash; *Unreleased*
+    - Inverse video fixes
 - 1.3.1 &mdash; *22 November 2018*
     - Fix inverse video
 - 1.3.0 &mdash; *16 November 2018*

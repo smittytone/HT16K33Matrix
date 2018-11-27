@@ -16,7 +16,7 @@ class HT16K33Matrix {
 	// Written by Tony Smith (@smittytone)
 	// Issued under the MIT license (MIT)
 
-	static VERSION = "1.3.1";
+	static VERSION = "1.3.2";
 
 	// Proportionally space character set
 	// NOTE Squirrel doesn't support array consts
@@ -231,13 +231,7 @@ class HT16K33Matrix {
 		//   Nothing
 
 		_buffer = blob(8);
-
-		if (_inverseVideoFlag) {
-            for (local i = 0 ; i < 8 ; i++) {
-                _buffer[i] = 0xFF;
-            }
-        }
-
+		if (_inverseVideoFlag) for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
 		_writeDisplay();
 	}
 
@@ -249,8 +243,11 @@ class HT16K33Matrix {
 
 		if (typeof state != "bool") state = true;
 		if (_debug) _logger.log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
+		if (_inverseVideoFlag != state) {
+			for (local i = 0 ; i < 8 ; i++) _buffer[i] = ~_buffer[i];
+			_writeDisplay();
+		}
 		_inverseVideoFlag = state;
-		_writeDisplay();
 	}
 
 	function displayIcon(glyphMatrix, center = false) {
@@ -277,9 +274,7 @@ class HT16K33Matrix {
 		_buffer = blob(8);
 
 		if (_inverseVideoFlag) {
-            for (local i = 0 ; i < 8 ; i++) {
-                _buffer[i] = 0xFF;
-            }
+            for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
         }
 
 		for (local i = 0 ; i < glyphMatrix.len() ; i++) {
@@ -317,9 +312,7 @@ class HT16K33Matrix {
 		_buffer = blob(8);
 
 		if (_inverseVideoFlag) {
-            for (local i = 0 ; i < 8 ; i++) {
-                _buffer[i] = 0xFF;
-            }
+            for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
         }
 
 		for (local i = 0 ; i < inputMatrix.len() ; i++) {
@@ -366,9 +359,7 @@ class HT16K33Matrix {
 				local outputFrame = blob(8);
 
 				if (_inverseVideoFlag) {
-            		for (local i = 0 ; i < 8 ; i++) {
-                		_buffer[i] = 0xFF;
-            		}
+            		for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
         		}
 
 				for (local k = 0 ; k < 8 ; k++) {
@@ -395,13 +386,10 @@ class HT16K33Matrix {
 					}
 				}
 
-				for (local k = 0 ; k < 8 ; k++) {
-					_buffer[k] = _inverseVideoFlag ? ~outputFrame[k] : outputFrame[k];
-				}
+				for (local k = 0 ; k < 8 ; k++) _buffer[k] = _inverseVideoFlag ? ~outputFrame[k] : outputFrame[k];
 
 				// Pause between frames according to level of rotation
 				imp.sleep(_rotationAngle == 0 ? 0.060 : 0.045);
-
 				_writeDisplay();
 			}
 		}
@@ -446,9 +434,7 @@ class HT16K33Matrix {
 		
 		// Convert input array to a string of bytes
 		local matrix = "";
-		for (local i = 0 ; i < glyphMatrix.len() ; i++) {
-			matrix = matrix + _flip(glyphMatrix[i]).tochar();
-		}
+		for (local i = 0 ; i < glyphMatrix.len() ; i++) matrix = matrix + _flip(glyphMatrix[i]).tochar();
 
 		// Save the string in the defchars table with the supplied Ascii code as its key
 		if (asciiCode in _defchars) {
@@ -535,11 +521,7 @@ class HT16K33Matrix {
 		local dataString = HT16K33_MAT_CLASS_DISPLAY_ADDRESS;
 		local writedata = clone(_buffer);
 		if (_rotationAngle != 0) writedata = _rotateMatrix(writedata, _rotationAngle);
-
-		for (local i = 0 ; i < 8 ; i++) {
-			dataString = dataString + (_processByte(writedata[i])).tochar() + "\x00";
-		}
-
+		for (local i = 0 ; i < 8 ; i++) dataString = dataString + (_processByte(writedata[i])).tochar() + "\x00";
 		_led.write(_ledAddress, dataString);
 	}
 
