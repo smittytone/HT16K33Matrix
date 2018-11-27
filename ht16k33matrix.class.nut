@@ -16,7 +16,7 @@ class HT16K33Matrix {
 	// Written by Tony Smith (@smittytone)
 	// Issued under the MIT license (MIT)
 
-	static VERSION = "1.3.2";
+	static VERSION = "1.4.0";
 
 	// Proportionally space character set
 	// NOTE Squirrel doesn't support array consts
@@ -224,17 +224,6 @@ class HT16K33Matrix {
 		_led.write(_ledAddress, brightness.tochar() + "\x00");
 	}
 
-	function clearDisplay() {
-		// Parameters:
-		//   None
-		// Returns:
-		//   Nothing
-
-		_buffer = blob(8);
-		if (_inverseVideoFlag) for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
-		_writeDisplay();
-	}
-
 	function setInverseVideo(state = true) {
 		// Parameters:
 		//   1. Boolean: whether inverse video is set (true) or unset (false)
@@ -248,6 +237,15 @@ class HT16K33Matrix {
 			_writeDisplay();
 		}
 		_inverseVideoFlag = state;
+	}
+
+	function setDebug(state = true) {
+		// Parameters:
+		//   1. Boolean: whether debugging is enabled (true) or not (false). Default: enabled
+		// Returns:
+		//   Nothing
+
+		_debug = state;
 	}
 
 	function displayIcon(glyphMatrix, center = false) {
@@ -493,6 +491,17 @@ class HT16K33Matrix {
 
 		_buffer[x] = row;
 		return this;
+	}
+
+	function clearDisplay() {
+		// Parameters:
+		//   None
+		// Returns:
+		//   Nothing
+
+		_buffer = blob(8);
+		if (_inverseVideoFlag) for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
+		_writeDisplay();
 	}
 
 	function draw() {
