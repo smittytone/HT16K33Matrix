@@ -233,6 +233,7 @@ class HT16K33Matrix {
 		if (typeof state != "bool") state = true;
 		if (_debug) _logger.log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
 		if (_inverseVideoFlag != state) {
+			// We're changing the video mode, so update what's on the LED
 			for (local i = 0 ; i < 8 ; i++) _buffer[i] = ~_buffer[i];
 			_writeDisplay();
 		}
@@ -296,6 +297,9 @@ class HT16K33Matrix {
 	}
 
 	function displayChar(asciiValue = 32, center = false) {
+		// Old method name, retained for compatibility
+		// See displayCharacter() for details
+		
 		local inputMatrix;
 		if (asciiValue < 32) {
 			// A user-definable character has been chosen
@@ -347,7 +351,8 @@ class HT16K33Matrix {
 				glyph = _pcharset[character - 32];
 				
 				// Add a blank column spacer
-				glyph = glyph + (_inverseVideoFlag ? "\xFF" : "\x00");
+				// NOTE we'll convert for inverse video later
+				glyph = glyph + "\x00";
 			}
 
 			foreach (column, columnValue in glyph) {
@@ -375,7 +380,7 @@ class HT16K33Matrix {
 								}
 							} else {
 								glyphToDraw = _pcharset[line[index + increment] - 32];
-								glyphToDraw = glyphToDraw + (_inverseVideoFlag ? "\xFF" : "\x00");
+								glyphToDraw = glyphToDraw + "\x00";
 							}
 							increment++;
 							cursor = 1;
@@ -384,6 +389,7 @@ class HT16K33Matrix {
 					}
 				}
 
+				// Set the buffer, inversing if necessary
 				for (local k = 0 ; k < 8 ; k++) _buffer[k] = _inverseVideoFlag ? ~outputFrame[k] : outputFrame[k];
 
 				// Pause between frames according to level of rotation
@@ -406,6 +412,9 @@ class HT16K33Matrix {
 	}
 
 	function defineChar(asciiCode = 0, glyphMatrix = null) {
+		// Old method name, retained for compatibility
+		// See defineCharacter() for details
+		
 		local type = typeof glyphMatrix;
 		if (glyphMatrix == null || (type != "array" && type != "string" && type != "blob")) {
 			if (_debug) _logger.error("HT16K33Matrix.defineChar() passed undefined icon array");
