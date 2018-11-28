@@ -12,7 +12,7 @@ To instantiate an HT16K33Matrix object pass the I&sup2;C bus to which the displa
 
 The passed imp I&sup2;C bus must be configured **before** the HT16K33Matrix object is created.
 
-Optionally, you can pass `true` into the *debug* parameter. This will cause debugging information to be posted to the device log. This is disabled by default.
+Optionally, you can pass `true` into the *debug* parameter. This will cause debugging information to be posted to the device log. This is disabled by default. **Note** From version 1.4.0, debugging can be enabled or disabled at any time using [*setDebug()*](#setdebug-state).
 
 ```squirrel
 // No debugging
@@ -157,6 +157,16 @@ Call *setBrightness()* to set the matrix’s brightness (duty cycle) to a value 
 led.setBrightness(8);
 ```
 
+### setDebug(*[state]*) ###
+
+This method can be used to set or unset (pass in `true` or `false`, respectively) the logging of extra information for debugging (see the [Constructor](#class-usage)). The default value of *state*  is `true`.
+
+```squirrel
+// Enable debugging
+
+led.setDebug();
+```
+
 ### powerDown() ###
 
 The display can be turned off by calling *powerDown()*.
@@ -168,8 +178,8 @@ The display can be turned on by calling *powerUp()*.
 ## Release Notes ##
 
 - 1.4.0 &mdash; *Unreleased*
-    - Add *setDebug()* method
-    - Inverse video fixes
+    - Add *setDebug()* method (hence version bump)
+    - Further inverse video fixes
 - 1.3.1 &mdash; *22 November 2018*
     - Fix inverse video
 - 1.3.0 &mdash; *16 November 2018*
