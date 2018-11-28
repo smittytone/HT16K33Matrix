@@ -130,6 +130,7 @@ class HT16K33Matrix {
 	_rotateFlag = false;
 	_inverseVideoFlag = false;
 	_debug = false;
+	_debugShowI2C = true;
 	_logger = null;
 
 	_aStrings = null;
@@ -209,15 +210,15 @@ class HT16K33Matrix {
 
 		if (brightness > 15) {
 			brightness = 15;
-			if (_debug) _logger.error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
+			if (_debug) _error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
 		}
 
 		if (brightness < 0) {
 			brightness = 0;
-			if (_debug) _logger.error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
+			if (_debug) _error("HT16K33Segment.setBrightness() brightness out of range (0-15)");
 		}
 
-		if (_debug) _logger.log("Brightness set to " + brightness);
+		if (_debug) _log("Brightness set to " + brightness);
 		brightness = brightness + 224;
 
 		// Write the new brightness value to the HT16K33
@@ -231,7 +232,7 @@ class HT16K33Matrix {
 		//   Nothing
 
 		if (typeof state != "bool") state = true;
-		if (_debug) _logger.log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
+		if (_debug) _log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
 		if (_inverseVideoFlag != state) {
 			// We're changing the video mode, so update what's on the LED
 			for (local i = 0 ; i < 8 ; i++) _buffer[i] = ~_buffer[i];
@@ -240,13 +241,15 @@ class HT16K33Matrix {
 		_inverseVideoFlag = state;
 	}
 
-	function setDebug(state = true) {
+	function setDebug(state = true, showAddress = true) {
 		// Parameters:
 		//   1. Boolean: whether debugging is enabled (true) or not (false). Default: enabled
+		//   2. Boolean: whether debug messages add I2C address (true) or not (false). Default: enabled
 		// Returns:
 		//   Nothing
 
 		_debug = state;
+		_debugShowI2C = showAddress;
 	}
 
 	function displayIcon(glyphMatrix, center = false) {
@@ -261,12 +264,12 @@ class HT16K33Matrix {
 
 		local type = typeof glyphMatrix;
 		if (glyphMatrix == null || (type != "array" && type != "string" && type != "blob")) {
-			if (_debug) _logger.error("HT16K33Matrix.displayIcon() passed undefined icon array");
+			if (_debug) _error("HT16K33Matrix.displayIcon() passed undefined icon array");
 			return;
 		}
 
 		if (glyphMatrix.len() < 1 || glyphMatrix.len() > 8) {
-			if (_debug) _logger.error("HT16K33Matrix.displayIcon() passed incorrectly sized icon array");
+			if (_debug) _error("HT16K33Matrix.displayIcon() passed incorrectly sized icon array");
 			return;
 		}
 
@@ -334,7 +337,7 @@ class HT16K33Matrix {
 		//   Nothing
 
 		if (line == null || line == "") {
-			if (_debug) _logger.error("HT16K33Matrix.displayLine() sent a null or zero-length string");
+			if (_debug) _error("HT16K33Matrix.displayLine() sent a null or zero-length string");
 			return;
 		}
 
@@ -342,7 +345,7 @@ class HT16K33Matrix {
 			local glyph;
 			if (character < 32) {
 				if (!(character in _defchars) || (typeof _defchars[character] != "string")) {
-					if (_debug) _logger.log("Use of undefined character (" + character + ") in HT16K33Matrix.displayLine()");
+					if (_debug) _log("Use of undefined character (" + character + ") in HT16K33Matrix.displayLine()");
 					glyph = _pcharset[0];
 				} else {
 					glyph = _defchars[character];
@@ -373,7 +376,7 @@ class HT16K33Matrix {
 						if (index + increment < line.len()) {
 							if (line[index + increment] < 32) {
 								if (!(line[index + increment] in _defchars) || (typeof _defchars[line[index + increment]] != "string")) {
-									if (_debug) _logger.log("Use of undefined character (" + line[index + increment] + ") in HT16K33Matrix.displayLine()");
+									if (_debug) _log("Use of undefined character (" + line[index + increment] + ") in HT16K33Matrix.displayLine()");
 									glyphToDraw = _pcharset[0];
 								} else {
 									glyphToDraw = _defchars[line[index + increment]];
@@ -417,25 +420,25 @@ class HT16K33Matrix {
 		
 		local type = typeof glyphMatrix;
 		if (glyphMatrix == null || (type != "array" && type != "string" && type != "blob")) {
-			if (_debug) _logger.error("HT16K33Matrix.defineChar() passed undefined icon array");
+			if (_debug) _error("HT16K33Matrix.defineChar() passed undefined icon array");
 			return;
 		}
 
 		if (glyphMatrix.len() < 1 || glyphMatrix.len() > 8) {
-			if (_debug) _logger.error("HT16K33Matrix.defineChar() passed incorrectly sized icon array");
+			if (_debug) _error("HT16K33Matrix.defineChar() passed incorrectly sized icon array");
 			return;
 		}
 
 		if (asciiCode < 0 || asciiCode > 31) {
-			if (_debug) _logger.error("HT16K33Matrix.defineChar() passed an incorrect character code");
+			if (_debug) _error("HT16K33Matrix.defineChar() passed an incorrect character code");
 			return;
 		}
 
 		if (_debug) {
 			if (asciiCode in _defchars) {
-				_logger.log("Character " + asciiCode + " already defined so redefining it");
+				_log("Character " + asciiCode + " already defined so redefining it");
 			} else {
-				_logger.log("Setting user-defined character " + asciiCode);
+				_log("Setting user-defined character " + asciiCode);
 			}
 		}
 		
@@ -462,12 +465,12 @@ class HT16K33Matrix {
 		//   this
 
 		if (x < 0 || x > 7) {
-			_logger.error("HT16K33Matrix.plot() X co-ordinate out of range (0-7)");
+			_error("HT16K33Matrix.plot() X co-ordinate out of range (0-7)");
 			return;
 		}
 
 		if (y < 0 || y > 7) {
-			_logger.error("HT16K33Matrix.plot() Y co-ordinate out of range (0-7)");
+			_error("HT16K33Matrix.plot() Y co-ordinate out of range (0-7)");
 			return;
 		}
 
@@ -519,13 +522,13 @@ class HT16K33Matrix {
 	}
 
 	function powerDown() {
-		if (_debug) _logger.log("Turning the HT16K33 Matrix off");
+		if (_debug) _log("Turning the HT16K33 Matrix off");
 		_led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF);
 		_led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_OFF);
 	}
 
 	function powerUp() {
-		if (_debug) _logger.log("Turning the HT16K33 Matrix on");
+		if (_debug) _log("Turning the HT16K33 Matrix on");
 		_led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON);
 		_led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_ON);
 	}
@@ -629,6 +632,19 @@ class HT16K33Matrix {
 		return result;
 	}
 
+	function _log(message) {
+		// Write the message to the logger, prefixing with the LED's I2C
+		// address if required to ID units in a multi-LED display
+		if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
+		_logger.log(message);
+	}
+
+	function _error(message) {
+		// Write the error to the logger, prefixing with the LED's I2C
+		// address if required to ID units in a multi-LED display
+		if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
+		_logger.error(message);
+	}
 	// ********** EXPERIMENTAL ***********
 
 	function animate(strings = null, completeCallback = null) {
@@ -637,13 +653,13 @@ class HT16K33Matrix {
 		// a basic animation feature as the two scroll
 
 		if (strings == null || typeof strings != "array") {
-			if (_debug) _logger.error("HT16K33Matrix.animate() takes an array of strings");
+			if (_debug) _error("HT16K33Matrix.animate() takes an array of strings");
 			return;
 		}
 
 		// 'animate()' needs at least two strings
 		if (strings.len() < 2) {
-			if (_debug) _logger.error("HT16K33Matrix.animate() takes an array of two or more strings");
+			if (_debug) _error("HT16K33Matrix.animate() takes an array of two or more strings");
 			return;
 		}
 
@@ -653,7 +669,7 @@ class HT16K33Matrix {
 			local b = strings[i];
 
 			if (a.len() != b.len()) {
-				if (_debug) _logger.error("HT16K33Matrix.animate() takes an array of strings of equal length");
+				if (_debug) _error("HT16K33Matrix.animate() takes an array of strings of equal length");
 				return;
 			}
 		}

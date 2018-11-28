@@ -157,14 +157,16 @@ Call *setBrightness()* to set the matrix’s brightness (duty cycle) to a value 
 led.setBrightness(8);
 ```
 
-### setDebug(*[state]*) ###
+### setDebug(*[state][, showI2Caddress*) ###
 
 This method can be used to set or unset (pass in `true` or `false`, respectively) the logging of extra information for debugging (see the [Constructor](#class-usage)). The default value of *state*  is `true`.
 
-```squirrel
-// Enable debugging
+The second parameter can be used to add the matrix’s I&sup2;C address to its log output. This is handy for multi-matrix displays if you need to differentiate between each matrix. The default value of *showI2Caddress*  is `true`.
 
-led.setDebug();
+```squirrel
+// Enable debugging for a one-LED device
+
+led.setDebug(true, false);
 ```
 
 ### powerDown() ###
