@@ -12,7 +12,7 @@ To instantiate an HT16K33Matrix object pass the I&sup2;C bus to which the displa
 
 The passed imp I&sup2;C bus must be configured **before** the HT16K33Matrix object is created.
 
-Optionally, you can pass `true` into the *debug* parameter. This will cause debugging information to be posted to the device log. This is disabled by default. **Note** From version 1.4.0, debugging can be enabled or disabled at any time using [*setDebug()*](#setdebug-state).
+Optionally, you can pass `true` into the *debug* parameter. This will cause debugging information to be posted to the device log. This is disabled by default. **Note** From version 1.4.0, debugging can be enabled or disabled at any time using [*setDebug()*](#setdebugstate).
 
 ```squirrel
 // No debugging
