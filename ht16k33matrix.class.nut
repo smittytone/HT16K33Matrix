@@ -306,7 +306,12 @@ class HT16K33Matrix {
 		local inputMatrix;
 		if (asciiValue < 32) {
 			// A user-definable character has been chosen
-			inputMatrix = _defchars[asciiValue];
+			try {
+				inputMatrix = _defchars[asciiValue];
+			} catch(err) {
+				if (_debug) _log("Use of undefined character (" + asciiValue + ") in HT16K33Matrix.displayCharacter()");
+				inputMatrix = _pcharset[63];
+			}
 		} else {
 			// A standard character has been chosen
 			asciiValue = asciiValue - 32;
