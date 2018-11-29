@@ -241,13 +241,15 @@ class HT16K33Matrix {
 		_inverseVideoFlag = state;
 	}
 
-	function setDebug(state = true, showAddress = true) {
+	function setDebug(state = true, showAddress = null) {
 		// Parameters:
 		//   1. Boolean: whether debugging is enabled (true) or not (false). Default: enabled
 		//   2. Boolean: whether debug messages add I2C address (true) or not (false). Default: enabled
 		// Returns:
 		//   Nothing
 
+		if (typeof state != "bool") state = true;
+		if (showAddress == null || typeof showAddress != "bool") showAddress = state;
 		_debug = state;
 		_debugShowI2C = showAddress;
 	}
