@@ -157,6 +157,17 @@ Call *setBrightness()* to set the matrix’s brightness (duty cycle) to a value 
 led.setBrightness(8);
 ```
 
+### setDisplayFlash(*flashRate*) ###
+
+This method can be used to flash the display. The value passed into *flashRate* is the flash rate in Hertz. This value must be one of the following values, fixed by the HT16K33 controller: 0.5Hz, 1Hz or 2Hz. You can also pass in 0 to disable flashing, and this is the default value.
+
+#### Example ####
+
+```squirrel
+// Blink the display every second
+led.setDisplayFlash(1);
+```
+
 ### setDebug(*[state][, showI2Caddress*) ###
 
 This method can be used to set or unset (pass in `true` or `false`, respectively) the logging of extra information for debugging (see the [Constructor](#class-usage)). The default value of *state*  is `true`.
@@ -180,7 +191,8 @@ The display can be turned on by calling *powerUp()*.
 ## Release Notes ##
 
 - 1.4.0 &mdash; *Unreleased*
-    - Add *setDebug()* method (hence version bump)
+    - Add *setDisplayFlash()* method
+    - Add *setDebug()* method
     - Further inverse video fixes
 - 1.3.1 &mdash; *22 November 2018*
     - Fix inverse video

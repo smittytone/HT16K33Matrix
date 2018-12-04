@@ -512,7 +512,31 @@ class HT16K33Matrix {
 		return this;
 	}
 
-	function clearDisplay() {
+	function setDisplayFlash(flashRate = 0) {
+        // Parameters:
+        //    1. Flash rate in Herz. Must be 0.5, 1 or 2 for a flash, or 0 for no flash
+        // Returns:
+        //    Nothing
+        local values = [0, 2, 1, 0.5];
+        local match = -1;
+        foreach (i, value in values) {
+            if (value == flashRate) {
+                match = i;
+                break;
+            }
+        }
+
+        if (match == -1) {
+            _logger.error("HT16K33Matrix.setDisplayFlash() passed an invalid blink frequency");
+            return null;
+        }
+
+        match = 0x81 + (match << 1);
+        _led.write(_ledAddress, match.tochar() + "\x00");
+        if (_debug) _log(format("Display flash set to %d Hz", ((match - 0x81) >> 1)));
+    }
+
+    function clearDisplay() {
 		// Parameters:
 		//   None
 		// Returns:
