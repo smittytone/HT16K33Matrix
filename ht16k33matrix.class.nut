@@ -201,7 +201,7 @@ class HT16K33Matrix {
 
 	function setBrightness(brightness = 15) {
 		// Parameters:
-		//   1. Display brightness, 1-15 (default: 15)
+		//   1. Display brightness, 0-15 (default: 15)
 		// Returns:
 		//    Nothing
 
