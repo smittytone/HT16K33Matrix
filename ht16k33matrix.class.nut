@@ -306,6 +306,7 @@ class HT16K33Matrix {
 		// See displayCharacter() for details
 		
 		local inputMatrix;
+		
 		if (asciiValue < 32) {
 			// A user-definable character has been chosen
 			try {
