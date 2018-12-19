@@ -190,7 +190,7 @@ The display can be turned on by calling *powerUp()*.
 
 ## Release Notes ##
 
-- 1.4.0 &mdash; *Unreleased*
+- 1.4.0 &mdash; *19 December 2018*
     - Add *setDisplayFlash()* method
     - Add *setDebug()* method
     - Further inverse video fixes
