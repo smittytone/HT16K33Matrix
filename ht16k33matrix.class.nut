@@ -1,5 +1,6 @@
-// CLASS CONSTANTS
-// HT16K33 registers and HT16K33-specific variables
+/**
+ * HT16K33 registers and HT16K33-specific variables
+*/ 
 const HT16K33_MAT_CLASS_REGISTER_DISPLAY_ON  = "\x81"
 const HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF = "\x80"
 const HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON   = "\x21"
@@ -7,14 +8,18 @@ const HT16K33_MAT_CLASS_REGISTER_SYSTEM_OFF  = "\x20"
 const HT16K33_MAT_CLASS_DISPLAY_ADDRESS      = "\x00"
 const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
 
-class HT16K33Matrix {
-
-    // Squirrel class for 1.2-inch 8x8 LED matrix displays driven by the HT16K33 controller
-    // For example: http://www.adafruit.com/products/1854
-    // Bus: I2C
-    // Availibility: Device
-    // Written by Tony Smith (@smittytone)
-    // Issued under the MIT license (MIT)
+/**
+ * Squirrel class for 1.2-inch 8x8 LED matrix displays driven by the HT16K33 controller
+ * For example: http://www.adafruit.com/products/1854
+ *
+ * Bus: I2C
+ * Availibility: Device
+ * Written by Tony Smith (@smittytone)
+ * Issued under the MIT license (MIT)
+ *
+ * @class
+ */
+ class HT16K33Matrix {
 
     static VERSION = "1.4.1";
 
@@ -141,11 +146,20 @@ class HT16K33Matrix {
     _aSeqIndex = 0;
     _aFlag = true;
 
+    /**
+     *  Initialize the matrix LED
+     *
+     *  @param  {object}    impI2Cbus   Whichever configured imp I2C bus is to be used for the HT16K33
+     *  @param  {integer}   i2cAddress  The HT16K33's I2C address. Default: 0x70
+     *  @param  {bool}      debug       Set/unset to log/silence error messages
+     *  
+     *  @returns {instance} The instance
+    */
     constructor(impI2Cbus = null, i2cAddress = 0x70, debug = false) {
         // Parameters:
-        //   1. Whichever configured imp I2C bus is to be used for the HT16K33
-        //   2. The HT16K33's I2C address (default: 0x70)
-        //   3. Boolean - set/unset to log/silence error messages
+        //   1. 
+        //   2. 
+        //   3. Boolean - 
         //
         // Returns:
         //   HT16K33Matrix instance - errors throw
@@ -169,13 +183,14 @@ class HT16K33Matrix {
         if ("seriallog" in getroottable()) { _logger = seriallog; } else { _logger = server; }
     }
 
+    /**
+     *  Initialize the matrix LED
+     *
+     *  @param  {integer} brightness  Display brightness, 1-15 (default: 15)
+     *  @param  {integer} angle       Display auto-rotation angle, 0 to -360 degrees (default: 0)
+     *  
+    */
     function init(brightness = 15, angle = 0) {
-        // Parameters:
-        //   1. Display brightness, 1-15 (default: 15)
-        //   2. Display auto-rotation angle, 0 to -360 degrees (default: 0)
-        // Returns:
-        //   Nothing
-
         // Angle range can be -360 to + 360 - ignore values beyond this
         if (angle < -360 || angle > 360) angle = 0;
 
@@ -199,12 +214,14 @@ class HT16K33Matrix {
         clearDisplay();
     }
 
+    /**
+     *  Sets the matrix LED brightness
+     *
+     *  @param  {integer} brightness  Display brightness, 1-15 (default: 15)
+     *  
+    */
     function setBrightness(brightness = 15) {
-        // Parameters:
-        //   1. Display brightness, 0-15 (default: 15)
-        // Returns:
-        //    Nothing
-
+        // Check argument type/range
         if (typeof brightness != "integer" && typeof brightness != "float") brightness = 15;
         brightness = brightness.tointeger();
 
@@ -225,12 +242,14 @@ class HT16K33Matrix {
         _led.write(_ledAddress, brightness.tochar() + "\x00");
     }
 
+    /**
+     *  Sets the matrix LED to inverse (black on colour) or regular video
+     *
+     *  @param  {bool}  state  Whether inverse video is set (true) or unset (false)
+     *  
+    */
     function setInverseVideo(state = true) {
-        // Parameters:
-        //   1. Boolean: whether inverse video is set (true) or unset (false)
-        // Returns:
-        //   Nothing
-
+        // Check argument type
         if (typeof state != "bool") state = true;
         if (_debug) _log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
         if (_inverseVideoFlag != state) {
@@ -241,29 +260,29 @@ class HT16K33Matrix {
         _inverseVideoFlag = state;
     }
 
+    /**
+     *  Sets the matrix LED to inverse (black on colour) or regular video
+     *
+     *  @param  {bool}  state       Whether debugging is enabled (true) or not (false). Default: enabled
+     *  @param  {bool}  showAddress Whether debug messages add I2C address (true) or not (false). Default: enabled
+     *  
+    */
     function setDebug(state = true, showAddress = null) {
-        // Parameters:
-        //   1. Boolean: whether debugging is enabled (true) or not (false). Default: enabled
-        //   2. Boolean: whether debug messages add I2C address (true) or not (false). Default: enabled
-        // Returns:
-        //   Nothing
-
+        // Check arguments/values
         if (typeof state != "bool") state = true;
         if (showAddress == null || typeof showAddress != "bool") showAddress = state;
         _debug = state;
         _debugShowI2C = showAddress;
     }
 
+    /**
+     *  Displays a custom character on the matrix
+     *
+     *  @param  {string/blob/array} glyphMatrix 1-8 8-bit values defining a pixel image. The data is passed as columns
+     *  @param  {bool}              center      Whether the icon should be displayed centred on the screen. Default: false
+     *  
+    */
     function displayIcon(glyphMatrix, center = false) {
-        // Displays a custom character
-        // Parameters:
-        //   1. Array/string/blob of 1-8 8-bit values defining a pixel image
-        //      The data is passed as columns
-        //   2. Boolean indicating whether the icon should be displayed
-        //      centred on the screen
-        // Returns:
-        //   Nothing
-
         local type = typeof glyphMatrix;
         if (glyphMatrix == null || (type != "array" && type != "string" && type != "blob")) {
             if (_debug) _error("HT16K33Matrix.displayIcon() passed undefined icon array");
@@ -290,21 +309,20 @@ class HT16K33Matrix {
         _writeDisplay();
     }
 
+    /**
+     *  Display a single character specified by its Ascii value on the matrix
+     *
+     *  @param  {integer}   asciiValue  Character Ascii code. Default: 32 (space)
+     *  @param  {bool}      center      Whether to center the character (true) or left-align (false). Default: false
+     *  
+    */
     function displayCharacter(asciiValue = 32, center = false) {
-        // Display a single character specified by its Ascii value
-        // Parameters:
-        //   1. Character Ascii code (default: 32 [space])
-        //   2. Boolean indicating whether to center the character (true) or left-align (false) (default: false)
-        // Returns:
-        //   Nothing
-
         displayChar(asciiValue, center);
     }
 
     function displayChar(asciiValue = 32, center = false) {
         // Old method name, retained for compatibility
         // See displayCharacter() for details
-        
         local inputMatrix;
         
         if (asciiValue < 32) {
@@ -337,13 +355,14 @@ class HT16K33Matrix {
         _writeDisplay();
     }
 
+    /**
+     *  Bit-scroll through the characters in a string
+     *
+     *  @param  {string}    line    A string of text
+     *  
+    */
     function displayLine(line) {
-        // Bit-scroll through the characters in the variable ‘line’
-        // Parameters:
-        //   1. String of text
-        // Returns:
-        //   Nothing
-
+        // Check argument type/value
         if (line == null || line == "") {
             if (_debug) _error("HT16K33Matrix.displayLine() sent a null or zero-length string");
             return;
@@ -410,22 +429,20 @@ class HT16K33Matrix {
         }
     }
 
+    /**
+     *  Set a user-definable chararacter for later use
+     *
+     *  @param  {integer}           asciiCode   Character Ascii code 0-31. Default: 0
+     *  @param  {string/blob/array} center      1-8 8-bit values defining a pixel image. The data is passed as columns
+     *  
+    */
     function defineCharacter(asciiCode = 0, glyphMatrix = null) {
-        // Set a user-definable char for later use
-        // Parameters:
-        //   1. Character Ascii code 0-31 (default: 0)
-        //   2. Array, string or blob of 1-8 8-bit values defining a pixel image
-        //      The data is passed as columns 
-        // Returns:
-        //   Nothing
-
         defineChar(asciiCode, glyphMatrix);
     }
 
     function defineChar(asciiCode = 0, glyphMatrix = null) {
         // Old method name, retained for compatibility
         // See defineCharacter() for details
-        
         local type = typeof glyphMatrix;
         if (glyphMatrix == null || (type != "array" && type != "string" && type != "blob")) {
             if (_debug) _error("HT16K33Matrix.defineChar() passed undefined icon array");
@@ -462,16 +479,19 @@ class HT16K33Matrix {
         }
     }
 
+    /**
+     *  Plot a point on the matrix. (0,0) is bottom left as viewed
+     *
+     *  @param  {integer}   x       X co-ordinate (0 - 7)
+     *  @param  {integer}   y       Y co-ordinate (0 - 7)
+     *  @param  {integer}   ink     Pixel color: 1 = white, 0 = black. NOTE inverse video mode reverses this
+     *  @param  {bool}      xor     Whether an underlying pixel already of color ink should be inverted
+     *
+     *  @returns {this}     The instance
+     *  
+    */
     function plot(x, y, ink = 1, xor = false) {
-        // Plot a point on the matrix. (0,0) is bottom left as viewed
-        // Parameters:
-        //   1. Integer X co-ordinate (0 - 7)
-        //   2. Integer Y co-ordinate (0 - 7)
-        //   3. Integer ink color: 1 = white, 0 = black (NOTE inverse video mode reverses this)
-        //   4. Boolean indicating whether a pixel already color ink should be inverted
-        // Returns:
-        //   this
-
+        // Check argument range and value
         if (x < 0 || x > 7) {
             _error("HT16K33Matrix.plot() X co-ordinate out of range (0-7)");
             return;
@@ -513,11 +533,13 @@ class HT16K33Matrix {
         return this;
     }
 
+    /**
+     *  Set the matrix to flash at one of three pre-defined rates
+     *
+     *  @param  {integer}   flashRate   Flash rate in Herz. Must be 0.5, 1 or 2 for a flash, or 0 for no flash
+     * 
+    */
     function setDisplayFlash(flashRate = 0) {
-        // Parameters:
-        //    1. Flash rate in Herz. Must be 0.5, 1 or 2 for a flash, or 0 for no flash
-        // Returns:
-        //    Nothing
         local values = [0, 2, 1, 0.5];
         local match = -1;
         foreach (i, value in values) {
@@ -537,28 +559,38 @@ class HT16K33Matrix {
         if (_debug) _log(format("Display flash set to %d Hz", ((match - 0x81) >> 1)));
     }
 
+    /**
+     *  Clear the matrix
+     * 
+    */
     function clearDisplay() {
-        // Parameters:
-        //   None
-        // Returns:
-        //   Nothing
-
         _buffer = blob(8);
         if (_inverseVideoFlag) for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
         _writeDisplay();
     }
 
+    /**
+     *  Write out the instance's buffer to the display
+     * 
+    */
     function draw() {
-        // Write out the buffer to the display
         _writeDisplay();
     }
 
+    /**
+     *  Turn the matrix off
+     * 
+    */
     function powerDown() {
         if (_debug) _log("Turning the HT16K33 Matrix off");
         _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF);
         _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_OFF);
     }
 
+    /**
+     *  Turn the matrix on
+     * 
+    */
     function powerUp() {
         if (_debug) _log("Turning the HT16K33 Matrix on");
         _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON);
@@ -567,10 +599,10 @@ class HT16K33Matrix {
 
     // ****** PRIVATE FUNCTIONS - DO NOT CALL ******
 
+    // Takes the contents of _buffer and writes it to the LED matrix
+    // Uses function processByte() to manipulate regular values to
+    // Adafruit 8x8 matrix's format
     function _writeDisplay() {
-        // Takes the contents of _buffer and writes it to the LED matrix
-        // Uses function processByte() to manipulate regular values to
-        // Adafruit 8x8 matrix's format
         local dataString = HT16K33_MAT_CLASS_DISPLAY_ADDRESS;
         local writedata = clone(_buffer);
         if (_rotationAngle != 0) writedata = _rotateMatrix(writedata, _rotationAngle);
@@ -578,9 +610,9 @@ class HT16K33Matrix {
         _led.write(_ledAddress, dataString);
     }
 
+    // Function used to manipulate pre-defined character matrices
+    // ahead of rotation by changing their byte order
     function _flip(value) {
-        // Function used to manipulate pre-defined character matrices
-        // ahead of rotation by changing their byte order
         local a = 0;
         local b = 0;
 
@@ -592,9 +624,9 @@ class HT16K33Matrix {
         return b;
     }
 
+    // Value of angle determines the rotation:
+    // 0 = none, 1 = 90 clockwise, 2 = 180, 3 = 90 anti-clockwise
     function _rotateMatrix(inputMatrix, angle = 0) {
-        // Value of angle determines the rotation:
-        // 0 = none, 1 = 90 clockwise, 2 = 180, 3 = 90 anti-clockwise
         if (angle == 0) return inputMatrix;
 
         local a = 0;
@@ -638,11 +670,10 @@ class HT16K33Matrix {
         return outputMatrix.tostring();
     }
 
+    // Adafruit 8x8 matrix requires some data manipulation:
+    // Bits 7-0 of each line need to be sent 0 through 7,
+    // and bit 0 rotate to bit 7
     function _processByte(byteValue) {
-        // Adafruit 8x8 matrix requires some data manipulation:
-        // Bits 7-0 of each line need to be sent 0 through 7,
-        // and bit 0 rotate to bit 7
-
         local result = 0;
         local a = 0;
         for (local i = 0 ; i < 8 ; i++) {
@@ -664,26 +695,25 @@ class HT16K33Matrix {
         return result;
     }
 
+    // Write the message to the logger, prefixing with the LED's I2C
+    // address if required to ID units in a multi-LED display
     function _log(message) {
-        // Write the message to the logger, prefixing with the LED's I2C
-        // address if required to ID units in a multi-LED display
         if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
         _logger.log(message);
     }
 
+    // Write the error to the logger, prefixing with the LED's I2C
+    // address if required to ID units in a multi-LED display
     function _error(message) {
-        // Write the error to the logger, prefixing with the LED's I2C
-        // address if required to ID units in a multi-LED display
         if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
         _logger.error(message);
     }
     // ********** EXPERIMENTAL ***********
 
+    // Display the strings in the array as per displayLine()
+    // but with the strings displayed alternately to provide
+    // a basic animation feature as the two scroll
     function animate(strings = null, completeCallback = null) {
-        // Display the strings in the array as per displayLine()
-        // but with the strings displayed alternately to provide
-        // a basic animation feature as the two scroll
-
         if (strings == null || typeof strings != "array") {
             if (_debug) _error("HT16K33Matrix.animate() takes an array of strings");
             return;
@@ -717,12 +747,13 @@ class HT16K33Matrix {
         _animateFrame();
     }
 
+    // Stop the animation flow
     function stopAnimate() {
-        // Stop the animation flow
         if (_aTimer != null) imp.cancelwakeup(_aTimer);
         _aTimer = null;
     }
 
+    // Animate a single frame
     function _animateFrame() {
         // Clear the frame
         this._buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
