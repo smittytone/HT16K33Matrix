@@ -14,17 +14,24 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
  *
  * Bus: I2C
  * Availibility: Device
- * Written by Tony Smith (@smittytone)
- * Issued under the MIT license (MIT)
+ * @author Tony Smith (@smittytone)
+ * @license MIT
  *
  * @class
  */
  class HT16K33Matrix {
 
+    /**
+     * @property {string} VERSION - The library version
+     * 
+     */    
     static VERSION = "1.4.1";
 
-    // Proportionally space character set
-    // NOTE Squirrel doesn't support array consts
+    /**
+     * @private
+     * @property {array} _pcharset - A proportionally spaced character set
+     * 
+     */    
     static _pcharset = [
         "\x00\x00",              // space - Ascii 32
         "\xfa",                  // !
@@ -124,7 +131,8 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
         "\x60\x90\x90\x60",      // Degrees sign - Ascii 127
     ];
 
-    // Class private properties
+    // *********** Private Properties **********
+
     _buffer = null;
     _led = null;
     _defchars = null;
@@ -149,21 +157,16 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Initialize the matrix LED
      *
-     *  @param  {object}    impI2Cbus   Whichever configured imp I2C bus is to be used for the HT16K33
-     *  @param  {integer}   i2cAddress  The HT16K33's I2C address. Default: 0x70
-     *  @param  {bool}      debug       Set/unset to log/silence error messages
+     *  @constructor
+     *
+     *  @param {object}  impI2Cbus    - Whichever configured imp I2C bus is to be used for the HT16K33
+     *  @param {integer} [i2cAddress] - The HT16K33's I2C address. Default: 0x70
+     *  @param {bool}    [debug ]     - Set/unset to log/silence error messages. Default: false
      *  
      *  @returns {instance} The instance
     */
     constructor(impI2Cbus = null, i2cAddress = 0x70, debug = false) {
-        // Parameters:
-        //   1. 
-        //   2. 
-        //   3. Boolean - 
-        //
-        // Returns:
-        //   HT16K33Matrix instance - errors throw
-
+        // Check buus argument
         if (impI2Cbus == null) throw "HT16K33Matrix() requires a non-null imp I2C object";
         if (i2cAddress < 0x00 || i2cAddress > 0xFF) throw "HT16K33Matrix() requires a valid I2C address";
 
@@ -186,8 +189,8 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Initialize the matrix LED
      *
-     *  @param  {integer} brightness  Display brightness, 1-15 (default: 15)
-     *  @param  {integer} angle       Display auto-rotation angle, 0 to -360 degrees (default: 0)
+     *  @param {integer} [brightness] - Display brightness, 1-15. Default: 15
+     *  @param {integer} [angle]      - Display auto-rotation angle, 0 to -360 degrees. Default: 0
      *  
     */
     function init(brightness = 15, angle = 0) {
@@ -217,7 +220,7 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Sets the matrix LED brightness
      *
-     *  @param  {integer} brightness  Display brightness, 1-15 (default: 15)
+     *  @param {integer} [brightness] - Display brightness, 1-15. Default: 15
      *  
     */
     function setBrightness(brightness = 15) {
@@ -245,7 +248,7 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Sets the matrix LED to inverse (black on colour) or regular video
      *
-     *  @param  {bool}  state  Whether inverse video is set (true) or unset (false)
+     *  @param {bool} [state] - Whether inverse video is set (true) or unset (false). Default: true
      *  
     */
     function setInverseVideo(state = true) {
@@ -263,8 +266,8 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Sets the matrix LED to inverse (black on colour) or regular video
      *
-     *  @param  {bool}  state       Whether debugging is enabled (true) or not (false). Default: enabled
-     *  @param  {bool}  showAddress Whether debug messages add I2C address (true) or not (false). Default: enabled
+     *  @param {bool} [state]       - Whether debugging is enabled (true) or not (false). Default: true
+     *  @param {bool} [showAddress] - Whether debug messages add I2C address (true) or not (false). Default: true
      *  
     */
     function setDebug(state = true, showAddress = null) {
@@ -278,8 +281,8 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Displays a custom character on the matrix
      *
-     *  @param  {string/blob/array} glyphMatrix 1-8 8-bit values defining a pixel image. The data is passed as columns
-     *  @param  {bool}              center      Whether the icon should be displayed centred on the screen. Default: false
+     *  @param {string|blob|array} glyphMatrix - 1-8 8-bit values defining a pixel image. The data is passed as columns
+     *  @param {bool}              [center]    - Whether the icon should be displayed centred on the screen. Default: false
      *  
     */
     function displayIcon(glyphMatrix, center = false) {
@@ -312,8 +315,8 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Display a single character specified by its Ascii value on the matrix
      *
-     *  @param  {integer}   asciiValue  Character Ascii code. Default: 32 (space)
-     *  @param  {bool}      center      Whether to center the character (true) or left-align (false). Default: false
+     *  @param {integer} [asciiValue] - Character Ascii code. Default: 32 (space)
+     *  @param {bool}    [center]     - Whether to center the character (true) or left-align (false). Default: false
      *  
     */
     function displayCharacter(asciiValue = 32, center = false) {
@@ -358,7 +361,7 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Bit-scroll through the characters in a string
      *
-     *  @param  {string}    line    A string of text
+     *  @param {string} line - A string of text
      *  
     */
     function displayLine(line) {
@@ -432,8 +435,8 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Set a user-definable chararacter for later use
      *
-     *  @param  {integer}           asciiCode   Character Ascii code 0-31. Default: 0
-     *  @param  {string/blob/array} center      1-8 8-bit values defining a pixel image. The data is passed as columns
+     *  @param  {integer}           [asciiCode] - Character's assigned Ascii code 0-31. Default: 0
+     *  @param  {string|blob|array} glyphMatrix - 1-8 8-bit values defining a pixel image. The data is passed as columns
      *  
     */
     function defineCharacter(asciiCode = 0, glyphMatrix = null) {
@@ -482,12 +485,12 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Plot a point on the matrix. (0,0) is bottom left as viewed
      *
-     *  @param  {integer}   x       X co-ordinate (0 - 7)
-     *  @param  {integer}   y       Y co-ordinate (0 - 7)
-     *  @param  {integer}   ink     Pixel color: 1 = white, 0 = black. NOTE inverse video mode reverses this
-     *  @param  {bool}      xor     Whether an underlying pixel already of color ink should be inverted
+     *  @param {integer} x     - X co-ordinate (0 - 7)
+     *  @param {integer} y     - Y co-ordinate (0 - 7)
+     *  @param {integer} [ink] - Pixel color: 1 = 'white', 0 = black. NOTE inverse video mode reverses this. Default: 1
+     *  @param {bool}    [xor] - Whether an underlying pixel already of color ink should be inverted. Default: false
      *
-     *  @returns {this}     The instance
+     *  @returns {this} The instance
      *  
     */
     function plot(x, y, ink = 1, xor = false) {
@@ -536,7 +539,7 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     /**
      *  Set the matrix to flash at one of three pre-defined rates
      *
-     *  @param  {integer}   flashRate   Flash rate in Herz. Must be 0.5, 1 or 2 for a flash, or 0 for no flash
+     *  @param {integer} [flashRate] - Flash rate in Herz. Must be 0.5, 1 or 2 for a flash, or 0 for no flash. Default: 0
      * 
     */
     function setDisplayFlash(flashRate = 0) {
@@ -599,9 +602,15 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
 
     // ****** PRIVATE FUNCTIONS - DO NOT CALL ******
 
-    // Takes the contents of _buffer and writes it to the LED matrix
+    // 
     // Uses function processByte() to manipulate regular values to
     // Adafruit 8x8 matrix's format
+    /**
+     *  Takes the contents of _buffer and writes it to the LED matrix
+     * 
+     *  @private
+     *  
+    */
     function _writeDisplay() {
         local dataString = HT16K33_MAT_CLASS_DISPLAY_ADDRESS;
         local writedata = clone(_buffer);
@@ -610,22 +619,38 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
         _led.write(_ledAddress, dataString);
     }
 
-    // Function used to manipulate pre-defined character matrices
-    // ahead of rotation by changing their byte order
-    function _flip(value) {
+    /**
+     *  Manipulate pre-defined character matrices ahead of rotation by changing their byte order
+     * 
+     *  @private
+     *  
+     *  @param {integer} v - The value to be flipped
+     *
+     *  @returns {integer} The flipped value
+    */
+    function _flip(v) {
         local a = 0;
         local b = 0;
 
         for (local i = 0 ; i < 8 ; i++) {
-            a = value & (1 << i);
+            a = v & (1 << i);
             if (a > 0) b = b + (1 << (7 - i));
         }
 
         return b;
     }
 
-    // Value of angle determines the rotation:
-    // 0 = none, 1 = 90 clockwise, 2 = 180, 3 = 90 anti-clockwise
+    /**
+     *  Rotate an 8-integer matrix through the specified angle in 90-degree increments:
+     *  0 = none, 1 = 90 clockwise, 2 = 180, 3 = 90 anti-clockwise
+     * 
+     *  @private
+     *  
+     *  @param {blob|string|array} inputMatrix - The matrix to be rotated
+     *  @param {integer}           [angle]     - The angle of rotation. Default: 0
+     *
+     *  @returns {string} The rotated matrix
+    */
     function _rotateMatrix(inputMatrix, angle = 0) {
         if (angle == 0) return inputMatrix;
 
@@ -670,9 +695,16 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
         return outputMatrix.tostring();
     }
 
-    // Adafruit 8x8 matrix requires some data manipulation:
-    // Bits 7-0 of each line need to be sent 0 through 7,
-    // and bit 0 rotate to bit 7
+    /**
+     *  Adafruit 8x8 matrix requires some data manipulation:
+     *  Bits 7-0 of each line need to be sent 0 through 7, and bit 0 rotate to bit 7
+     * 
+     *  @private
+     *  
+     *  @param {integer} byteValue - The value to be processed
+     *
+     *  @returns {integer} The processed value
+    */
     function _processByte(byteValue) {
         local result = 0;
         local a = 0;
@@ -695,19 +727,32 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
         return result;
     }
 
-    // Write the message to the logger, prefixing with the LED's I2C
-    // address if required to ID units in a multi-LED display
+    /**
+     *  Write the message to the logger, prefixing with the LED's I2C address if required to ID units in a multi-LED display
+     * 
+     *  @private
+     *  
+     *  @param {string} message - The string to be written
+     *
+    */
     function _log(message) {
         if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
         _logger.log(message);
     }
 
-    // Write the error to the logger, prefixing with the LED's I2C
-    // address if required to ID units in a multi-LED display
+    /**
+     *  Write the error message to the logger, prefixing with the LED's I2C address if required to ID units in a multi-LED display
+     * 
+     *  @private
+     *  
+     *  @param {string} message - The string to be written
+     *
+    */
     function _error(message) {
         if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
         _logger.error(message);
     }
+
     // ********** EXPERIMENTAL ***********
 
     // Display the strings in the array as per displayLine()
