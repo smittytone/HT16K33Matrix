@@ -18,8 +18,8 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
  * @license     MIT
  *
  * @class
- */
- class HT16K33Matrix {
+*/
+class HT16K33Matrix {
 
     /**
      * @property {string} VERSION - The library version
@@ -155,13 +155,13 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     _aFlag = true;
 
     /**
-     *  Initialize the matrix LED
+     *  Instantiate the matrix LED
      *
      *  @constructor
      *
      *  @param {imp::i2c} impI2Cbus    - Whichever configured imp I2C bus is to be used for the HT16K33
      *  @param {integer}  [i2cAddress] - The HT16K33's I2C address. Default: 0x70
-     *  @param {bool}     [debug ]     - Set/unset to log/silence error messages. Default: false
+     *  @param {bool}     [debug ]     - Set/unset to log/silence extra debug messages. Default: false
      *  
      *  @returns {instance} The instance
     */
@@ -602,9 +602,6 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
 
     // ****** PRIVATE FUNCTIONS - DO NOT CALL ******
 
-    // 
-    // Uses function processByte() to manipulate regular values to
-    // Adafruit 8x8 matrix's format
     /**
      *  Takes the contents of _buffer and writes it to the LED matrix
      * 
