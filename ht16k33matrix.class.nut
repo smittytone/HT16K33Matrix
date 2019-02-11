@@ -1,6 +1,6 @@
 /**
  * HT16K33 registers and HT16K33-specific variables
-*/ 
+ */ 
 const HT16K33_MAT_CLASS_REGISTER_DISPLAY_ON  = "\x81"
 const HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF = "\x80"
 const HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON   = "\x21"
@@ -12,10 +12,10 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
  * Squirrel class for 1.2-inch 8x8 LED matrix displays driven by the HT16K33 controller
  * For example: http://www.adafruit.com/products/1854
  *
- * Bus: I2C
- * Availibility: Device
- * @author Tony Smith (@smittytone)
- * @license MIT
+ * Bus          I2C
+ * Availibility Device
+ * @author      Tony Smith (@smittytone)
+ * @license     MIT
  *
  * @class
  */
@@ -159,14 +159,14 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
      *
      *  @constructor
      *
-     *  @param {object}  impI2Cbus    - Whichever configured imp I2C bus is to be used for the HT16K33
-     *  @param {integer} [i2cAddress] - The HT16K33's I2C address. Default: 0x70
-     *  @param {bool}    [debug ]     - Set/unset to log/silence error messages. Default: false
+     *  @param {imp::i2c} impI2Cbus    - Whichever configured imp I2C bus is to be used for the HT16K33
+     *  @param {integer}  [i2cAddress] - The HT16K33's I2C address. Default: 0x70
+     *  @param {bool}     [debug ]     - Set/unset to log/silence error messages. Default: false
      *  
      *  @returns {instance} The instance
     */
     constructor(impI2Cbus = null, i2cAddress = 0x70, debug = false) {
-        // Check buus argument
+        // Check bus argument
         if (impI2Cbus == null) throw "HT16K33Matrix() requires a non-null imp I2C object";
         if (i2cAddress < 0x00 || i2cAddress > 0xFF) throw "HT16K33Matrix() requires a valid I2C address";
 
@@ -264,7 +264,7 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     }
 
     /**
-     *  Sets the matrix LED to inverse (black on colour) or regular video
+     *  Set the matrix LED to log extra debug info
      *
      *  @param {bool} [state]       - Whether debugging is enabled (true) or not (false). Default: true
      *  @param {bool} [showAddress] - Whether debug messages add I2C address (true) or not (false). Default: true
@@ -563,7 +563,7 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     }
 
     /**
-     *  Clear the matrix
+     *  Clear the matrix buffer and write it to the display itself
      * 
     */
     function clearDisplay() {
@@ -573,7 +573,7 @@ const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
     }
 
     /**
-     *  Write out the instance's buffer to the display
+     *  Write out the instance's buffer to the display itself
      * 
     */
     function draw() {
