@@ -5,10 +5,12 @@
  *
  */ 
 enum HT16K33_MATRIX_CLASS {
+        // Command registers
         REGISTER_DISPLAY_ON  = "\x81",
         REGISTER_DISPLAY_OFF = "\x80",
         REGISTER_SYSTEM_ON   = "\x21",
         REGISTER_SYSTEM_OFF  = "\x20",
+        // Display settings
         DISPLAY_ADDRESS      = "\x00",
         I2C_ADDRESS          = 0x70
 }
