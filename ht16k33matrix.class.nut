@@ -1,12 +1,17 @@
 /**
  * HT16K33 registers and HT16K33-specific variables
+ * 
+ * @enum
+ *
  */ 
-const HT16K33_MAT_CLASS_REGISTER_DISPLAY_ON  = "\x81"
-const HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF = "\x80"
-const HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON   = "\x21"
-const HT16K33_MAT_CLASS_REGISTER_SYSTEM_OFF  = "\x20"
-const HT16K33_MAT_CLASS_DISPLAY_ADDRESS      = "\x00"
-const HT16K33_MAT_CLASS_I2C_ADDRESS          = 0x70
+enum HT16K33_MATRIX_CLASS {
+        REGISTER_DISPLAY_ON  = "\x81",
+        REGISTER_DISPLAY_OFF = "\x80",
+        REGISTER_SYSTEM_ON   = "\x21",
+        REGISTER_SYSTEM_OFF  = "\x20",
+        DISPLAY_ADDRESS      = "\x00",
+        I2C_ADDRESS          = 0x70
+}
 
 /**
  * Squirrel class for 1.2-inch 8x8 LED matrix displays driven by the HT16K33 controller
@@ -25,7 +30,7 @@ class HT16K33Matrix {
      * @property {string} VERSION - The library version
      * 
      */    
-    static VERSION = "1.4.1";
+    static VERSION = "2.0.0";
 
     /**
      * @private
@@ -146,7 +151,7 @@ class HT16K33Matrix {
     _debugShowI2C = true;
     _logger = null;
 
-    _aStrings = null;
+    _aFrames = null;
     _aTimer = null;
     _aCb = null;
     _aSliceIndex = 0;
@@ -586,8 +591,8 @@ class HT16K33Matrix {
     */
     function powerDown() {
         if (_debug) _log("Turning the HT16K33 Matrix off");
-        _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_OFF);
-        _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_OFF);
+        _led.write(_ledAddress, HT16K33_MATRIX_CLASS.REGISTER_DISPLAY_OFF);
+        _led.write(_ledAddress, HT16K33_MATRIX_CLASS.REGISTER_SYSTEM_OFF);
     }
 
     /**
@@ -596,8 +601,8 @@ class HT16K33Matrix {
     */
     function powerUp() {
         if (_debug) _log("Turning the HT16K33 Matrix on");
-        _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_SYSTEM_ON);
-        _led.write(_ledAddress, HT16K33_MAT_CLASS_REGISTER_DISPLAY_ON);
+        _led.write(_ledAddress, HT16K33_MATRIX_CLASS.REGISTER_SYSTEM_ON);
+        _led.write(_ledAddress, HT16K33_MATRIX_CLASS.REGISTER_DISPLAY_ON);
     }
 
     // ****** PRIVATE FUNCTIONS - DO NOT CALL ******
@@ -609,7 +614,7 @@ class HT16K33Matrix {
      *  
     */
     function _writeDisplay() {
-        local dataString = HT16K33_MAT_CLASS_DISPLAY_ADDRESS;
+        local dataString = HT16K33_MATRIX_CLASS.DISPLAY_ADDRESS;
         local writedata = clone(_buffer);
         if (_rotationAngle != 0) writedata = _rotateMatrix(writedata, _rotationAngle);
         for (local i = 0 ; i < 8 ; i++) dataString = dataString + (_processByte(writedata[i])).tochar() + "\x00";
@@ -755,31 +760,31 @@ class HT16K33Matrix {
     // Display the strings in the array as per displayLine()
     // but with the strings displayed alternately to provide
     // a basic animation feature as the two scroll
-    function animate(strings = null, completeCallback = null) {
-        if (strings == null || typeof strings != "array") {
-            if (_debug) _error("HT16K33Matrix.animate() takes an array of strings");
+    function animate(frames = null, completeCallback = null) {
+        if (frames == null || typeof frames != "array") {
+            if (_debug) _error("HT16K33Matrix.animate() takes an array of strings or blobs");
             return;
         }
 
-        // 'animate()' needs at least two strings
-        if (strings.len() < 2) {
+        // 'animate()' needs at least two strings/blobs
+        if (frames.len() < 2) {
             if (_debug) _error("HT16K33Matrix.animate() takes an array of two or more strings");
             return;
         }
 
-        // Strings must be the same length
-        for (local i = 1 ; i < strings.len() ; i++) {
-            local a = strings[i - 1];
-            local b = strings[i];
+        // Strings/blobs must be the same length
+        for (local i = 1 ; i < frames.len() ; i++) {
+            local a = frames[i - 1];
+            local b = frames[i];
 
             if (a.len() != b.len()) {
-                if (_debug) _error("HT16K33Matrix.animate() takes an array of strings of equal length");
+                if (_debug) _error("HT16K33Matrix.animate() takes an array of strings or blobs of equal length");
                 return;
             }
         }
 
         // Set/initialise the animation variables
-        _aStrings = strings;
+        _aFrames = frames;
         _aCharIndex = 0;        // Character in the string
         _aSliceIndex = 0;       // Column inset at which the frame starts
         _aSeqIndex = 0;         // Which string to display
@@ -797,8 +802,8 @@ class HT16K33Matrix {
 
     // Animate a single frame
     function _animateFrame() {
-        // Clear the frame
-        this._buffer = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+        // Clear the buffer
+        this._buffer = blob(8);
 
         local glyph;
         local index = 0;
@@ -806,14 +811,14 @@ class HT16K33Matrix {
         local charIndex = this._aCharIndex;
 
         // Get the current string
-        local frameString = _aStrings[this._aSeqIndex];
+        local frame = _aFrames[this._aSeqIndex];
 
         do {
             local c;
 
             try {
                 // Get the current character from the current string
-                c = frameString[charIndex];
+                c = frame[charIndex];
             } catch(err) {
                 break;
             }
@@ -823,14 +828,14 @@ class HT16K33Matrix {
                 if (this._defchars[c] == -1 || (typeof this._defchars[c] != "array")) {
                     // Character not defined; present a space instead
                     glyph = this._pcharset[0];
-                    glyph.append(0x00);
+                    glyph = glyph + "\x00";
                 } else {
-                    glyph = clone(this._defchars[c]);
+                    glyph = this._defchars[c];
                 }
             } else {
                 // Display a standard Ascii character
                 glyph = this._pcharset[c - 32];
-                glyph.append(0x00);
+                glyph = glyph + "\x00";
             }
 
             for (local i = sliceIndex ; i < glyph.len() ; i++) {
@@ -856,21 +861,21 @@ class HT16K33Matrix {
         _writeDisplay();
 
         // Load in the current glyph to see if we're at its end
-        local c = frameString[this._aCharIndex];
+        local c = frame[this._aCharIndex];
 
         if (c < 32) {
             // User-defined character?
             if (this._defchars[c] == -1 || (typeof this._defchars[c] != "array")) {
                 // Yes, but it's undefined so use a space
                 glyph = this._pcharset[0];
-                glyph.append(0x00);
+                glyph = glyph + "\x00";
             } else {
                 glyph = clone(this._defchars[c]);
             }
         } else {
             // No, so use a standard Ascii character
             glyph = this._pcharset[c - 32];
-            glyph.append(0x00);
+            glyph = glyph + "\x00";
         }
 
         // If the start row is greater than the characters length, we
