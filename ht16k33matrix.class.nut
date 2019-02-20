@@ -25,7 +25,8 @@ enum HT16K33_MATRIX_CLASS {
  * @license     MIT
  *
  * @class
-*/
+ *
+ */
 class HT16K33Matrix {
 
     /**
@@ -36,6 +37,7 @@ class HT16K33Matrix {
 
     /**
      * @private
+     *
      * @property {array} _pcharset - A proportionally spaced character set
      * 
      */    
@@ -170,8 +172,9 @@ class HT16K33Matrix {
      *  @param {integer}  [i2cAddress] - The HT16K33's I2C address. Default: 0x70
      *  @param {bool}     [debug ]     - Set/unset to log/silence extra debug messages. Default: false
      *  
-     *  @returns {instance} The instance
-    */
+     *  @returns {instance} this
+     *
+     */
     constructor(impI2Cbus = null, i2cAddress = 0x70, debug = false) {
         // Check bus argument
         if (impI2Cbus == null) throw "HT16K33Matrix() requires a non-null imp I2C object";
@@ -186,11 +189,10 @@ class HT16K33Matrix {
         _buffer = blob(8);
         _defchars = {};
 
-        // Select logging target, stored in '_logger' - this will point to 'seriallog' if 'seriallog.nut' has been
-        // loaded BEFORE HT16K33Matrix is instantiated.
-        // NOTE 'seriallog' also logs via server.log() as well as serial,
-        //      so logs will not be lost if 'seriallog' is not configured
-        if ("seriallog" in getroottable()) { _logger = seriallog; } else { _logger = server; }
+        // Select logging target, which stored in '_logger', and will be 'seriallog' if 'seriallog.nut'
+        // has been loaded BEFORE HT16K33Matrix is instantiated on the device, otherwise it will be
+        // the imp API object 'server'
+        _logger = "seriallog" in getroottable() ? seriallog : server;
     }
 
     /**
@@ -199,7 +201,7 @@ class HT16K33Matrix {
      *  @param {integer} [brightness] - Display brightness, 1-15. Default: 15
      *  @param {integer} [angle]      - Display auto-rotation angle, 0 to -360 degrees. Default: 0
      *  
-    */
+     */
     function init(brightness = 15, angle = 0) {
         // Angle range can be -360 to + 360 - ignore values beyond this
         if (angle < -360 || angle > 360) angle = 0;
@@ -229,7 +231,7 @@ class HT16K33Matrix {
      *
      *  @param {integer} [brightness] - Display brightness, 1-15. Default: 15
      *  
-    */
+     */
     function setBrightness(brightness = 15) {
         // Check argument type/range
         if (typeof brightness != "integer" && typeof brightness != "float") brightness = 15;
@@ -257,7 +259,7 @@ class HT16K33Matrix {
      *
      *  @param {bool} [state] - Whether inverse video is set (true) or unset (false). Default: true
      *  
-    */
+     */
     function setInverseVideo(state = true) {
         // Check argument type
         if (typeof state != "bool") state = true;
@@ -276,7 +278,7 @@ class HT16K33Matrix {
      *  @param {bool} [state]       - Whether debugging is enabled (true) or not (false). Default: true
      *  @param {bool} [showAddress] - Whether debug messages add I2C address (true) or not (false). Default: true
      *  
-    */
+     */
     function setDebug(state = true, showAddress = null) {
         // Check arguments/values
         if (typeof state != "bool") state = true;
@@ -291,7 +293,7 @@ class HT16K33Matrix {
      *  @param {string|blob|array} glyphMatrix - 1-8 8-bit values defining a pixel image. The data is passed as columns
      *  @param {bool}              [center]    - Whether the icon should be displayed centred on the screen. Default: false
      *  
-    */
+     */
     function displayIcon(glyphMatrix, center = false) {
         local type = typeof glyphMatrix;
         if (glyphMatrix == null || (type != "array" && type != "string" && type != "blob")) {
@@ -325,7 +327,7 @@ class HT16K33Matrix {
      *  @param {integer} [asciiValue] - Character Ascii code. Default: 32 (space)
      *  @param {bool}    [center]     - Whether to center the character (true) or left-align (false). Default: false
      *  
-    */
+     */
     function displayCharacter(asciiValue = 32, center = false) {
         displayChar(asciiValue, center);
     }
@@ -370,7 +372,7 @@ class HT16K33Matrix {
      *
      *  @param {string} line - A string of text
      *  
-    */
+     */
     function displayLine(line) {
         // Check argument type/value
         if (line == null || line == "") {
@@ -445,7 +447,7 @@ class HT16K33Matrix {
      *  @param  {integer}           [asciiCode] - Character's assigned Ascii code 0-31. Default: 0
      *  @param  {string|blob|array} glyphMatrix - 1-8 8-bit values defining a pixel image. The data is passed as columns
      *  
-    */
+     */
     function defineCharacter(asciiCode = 0, glyphMatrix = null) {
         defineChar(asciiCode, glyphMatrix);
     }
@@ -497,9 +499,9 @@ class HT16K33Matrix {
      *  @param {integer} [ink] - Pixel color: 1 = 'white', 0 = black. NOTE inverse video mode reverses this. Default: 1
      *  @param {bool}    [xor] - Whether an underlying pixel already of color ink should be inverted. Default: false
      *
-     *  @returns {this} The instance
+     *  @returns {imstance} this
      *  
-    */
+     */
     function plot(x, y, ink = 1, xor = false) {
         // Check argument range and value
         if (x < 0 || x > 7) {
@@ -548,7 +550,7 @@ class HT16K33Matrix {
      *
      *  @param {integer} [flashRate] - Flash rate in Herz. Must be 0.5, 1 or 2 for a flash, or 0 for no flash. Default: 0
      * 
-    */
+     */
     function setDisplayFlash(flashRate = 0) {
         local values = [0, 2, 1, 0.5];
         local match = -1;
@@ -572,7 +574,7 @@ class HT16K33Matrix {
     /**
      *  Clear the matrix buffer and write it to the display itself
      * 
-    */
+     */
     function clearDisplay() {
         _buffer = blob(8);
         if (_inverseVideoFlag) for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
@@ -582,7 +584,7 @@ class HT16K33Matrix {
     /**
      *  Write out the instance's buffer to the display itself
      * 
-    */
+     */
     function draw() {
         _writeDisplay();
     }
@@ -590,7 +592,7 @@ class HT16K33Matrix {
     /**
      *  Turn the matrix off
      * 
-    */
+     */
     function powerDown() {
         if (_debug) _log("Turning the HT16K33 Matrix off");
         _led.write(_ledAddress, HT16K33_MATRIX_CLASS.REGISTER_DISPLAY_OFF);
@@ -600,7 +602,7 @@ class HT16K33Matrix {
     /**
      *  Turn the matrix on
      * 
-    */
+     */
     function powerUp() {
         if (_debug) _log("Turning the HT16K33 Matrix on");
         _led.write(_ledAddress, HT16K33_MATRIX_CLASS.REGISTER_SYSTEM_ON);
@@ -614,7 +616,7 @@ class HT16K33Matrix {
      * 
      *  @private
      *  
-    */
+     */
     function _writeDisplay() {
         local dataString = HT16K33_MATRIX_CLASS.DISPLAY_ADDRESS;
         local writedata = clone(_buffer);
@@ -631,7 +633,8 @@ class HT16K33Matrix {
      *  @param {integer} v - The value to be flipped
      *
      *  @returns {integer} The flipped value
-    */
+     *
+     */
     function _flip(v) {
         local a = 0;
         local b = 0;
@@ -654,7 +657,8 @@ class HT16K33Matrix {
      *  @param {integer}           [angle]     - The angle of rotation. Default: 0
      *
      *  @returns {string} The rotated matrix
-    */
+     *
+     */
     function _rotateMatrix(inputMatrix, angle = 0) {
         if (angle == 0) return inputMatrix;
 
@@ -708,7 +712,8 @@ class HT16K33Matrix {
      *  @param {integer} byteValue - The value to be processed
      *
      *  @returns {integer} The processed value
-    */
+     *
+     */
     function _processByte(byteValue) {
         local result = 0;
         local a = 0;
@@ -738,7 +743,7 @@ class HT16K33Matrix {
      *  
      *  @param {string} message - The string to be written
      *
-    */
+     */
     function _log(message) {
         if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
         _logger.log(message);
@@ -751,7 +756,7 @@ class HT16K33Matrix {
      *  
      *  @param {string} message - The string to be written
      *
-    */
+     */
     function _error(message) {
         if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
         _logger.error(message);

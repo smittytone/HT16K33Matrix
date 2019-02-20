@@ -14,6 +14,8 @@ The passed imp I&sup2;C bus must be configured **before** the HT16K33Matrix obje
 
 Optionally, you can pass `true` into the *debug* parameter. This will cause debugging information to be posted to the device log. This is disabled by default. **Note** From version 1.4.0, debugging can be enabled or disabled at any time using [*setDebug()*](#setdebugstate).
 
+#### Examples ####
+
 ```squirrel
 // No debugging
 hardware.i2c89.configure(CLOCK_SPEED_400_KHZ);
@@ -34,6 +36,8 @@ Call *init()* to set the matrix’s initial settings. All the parameters are opt
 
 - *brightness* sets the LED intensity (duty cycle) to a value between 0 (dim) and 15 (maximum); the default is 15.
 - *angle* specifies the optional angle by which any image drawn on the matrix will be rotated. You can pass a degree value, which will be converted into the internal format &mdash; 0 (0&deg;), 1 (90&deg;), 2 (180&deg;) or 3 (270&deg;) &mdash; or pass an internal value. Values outside the range -360 to +360 are set to zero.
+
+#### Examples ####
 
 ```squirrel
 // Set matrix to max brightness and to
@@ -59,6 +63,8 @@ If no array is passed, or an empty or incomplete array is passed, the function r
 
 If `true` is passed into the optional parameter *center*, the glyph will be centered on the matrix.
 
+#### Example ####
+
 ```squirrel
 // Display a smiley on the matrix
 local smiley = [0x3C, 0x42, 0x95, 0xA1, 0xA1, 0x95, 0x42, 0x3C];
@@ -69,6 +75,8 @@ led.displayIcon(smiley);
 
 Call *displayLine()* to write a string to the matrix. The characters (one or more) comprising the string will scroll leftward. If no string is passed, or an empty string is passed, the function returns with no effect.
 
+#### Example ####
+
 ```squirrel
 // Display 'The quick brown fox...' on the display
 local text = "The quick brown fox jumped over the lazy dog";
@@ -78,6 +86,8 @@ led.displayline(text);
 ### displayCharacter(*asciiValue[, center]*) ###
 
 Call *displayCharacter()* to write an Ascii character to the matrix. The value is optional; if no value is specified, the display will be set to display a space character. Unless the matrix is set to inverse video mode, this has the same effect as *clearDisplay()*.
+
+#### Example ####
 
 ```squirrel
 // Set the display to show ‘A’
@@ -91,6 +101,8 @@ You can save user-defined characters for future use using *defineCharacter()*. T
 The *glyphMatrix* parameter takes an array containing one to eight 8-bit integer values, each value a bit pattern for one of the *columns* making up the character. Each column value’s bits are set or unset according to the diagram below, ie. bit 0 is the topmost pixel of the column and bit 7 is the lowest pixel of the column. See *displayIcon()*, above, for further guidance on forming new characters.
 
 Once defined a user-defined character can be presented using *displayCharacter()* passing in its character code as the *asciiValue* parameter. You can add your characters to a string to be presented by *displayLine()* by adding it as a single-character string:
+
+#### Example ####
 
 ```squirrel
 local smiley = [0x3C, 0x42, 0x95, 0xA1, 0xA1, 0x95, 0x42, 0x3C];
@@ -110,6 +122,8 @@ A call to *plot()* does not update the display immediately, allowing multiple ca
 The co-ordinate axis (0,0) is the bottom left of the display.
 
 The optional parameter *xor* is a Boolean value. The default is `false`, but if *xor* is set to `true`, the method will flip the color of the specified pixel if the pixel is already at the requested colour. For example, if the pixel at (1,1) is 1, setting it to 1 will have no effect unless *xor* is `true`, in which case the pixel becomes 0.
+
+#### Example ####
 
 ```squirrel
 // Draw a border around the matrix edge
@@ -137,6 +151,8 @@ Call *clearDisplay()* to blank the matrix.
 
 Call *setInverseVideo()* to specify whether the characters on the matrix should be displayed in inverse video (dark on light) or standard video (light on dark). Pass `true` to select inverse video mode, `false` to select standard video. If no value is passed, inverse mode is selected automatically.
 
+#### Example ####
+
 ```squirrel
 // Display 'The quick brown fox...' on the display in standard...
 local text = "The quick brown fox jumped over the lazy dog";
@@ -151,9 +167,10 @@ led.displayLine(text);
 
 Call *setBrightness()* to set the matrix’s brightness (duty cycle) to a value between 0 (dim) and 15 (maximum). The value is optional; the matrix will be set to maximum brightness if no value is passed.
 
+#### Example ####
+
 ```squirrel
 // Set the display brightness to 50%
-
 led.setBrightness(8);
 ```
 
@@ -168,15 +185,16 @@ This method can be used to flash the display. The value passed into *flashRate* 
 led.setDisplayFlash(1);
 ```
 
-### setDebug(*[state][, showI2Caddress*) ###
+### setDebug(*[state][, showI2Caddress]*) ###
 
 This method can be used to set or unset (pass in `true` or `false`, respectively) the logging of extra information for debugging (see the [Constructor](#class-usage)). The default value of *state*  is `true`.
 
 The second parameter can be used to add the matrix’s I&sup2;C address to its log output. This is handy for multi-matrix displays if you need to differentiate between each matrix. The default value of *showI2Caddress*  is `true`.
 
+#### Example ####
+
 ```squirrel
 // Enable debugging for a one-LED device
-
 led.setDebug(true, false);
 ```
 
