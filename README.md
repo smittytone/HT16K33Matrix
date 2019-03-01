@@ -208,7 +208,7 @@ The display can be turned on by calling *powerUp()*.
 
 ## Release Notes ##
 
-- 2.0.0 &mdash; *Unreleased*
+- 2.0.0 &mdash; *01 March 2019*
     - Namespace matrix constants via *HT16K33_MATRIX_CLASS* enum
 - 1.4.1 &mdash; *31 January 2019*
     - Reduce width of minus character
