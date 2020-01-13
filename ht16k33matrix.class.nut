@@ -489,8 +489,8 @@ class HT16K33Matrix {
     /**
      *  Plot a point on the matrix. (0,0) is bottom left as viewed
      *
-     *  @param {integer} x     - X co-ordinate (0 - 7)
-     *  @param {integer} y     - Y co-ordinate (0 - 7)
+     *  @param {integer} x     - X co-ordinate (0 - 7) left to right
+     *  @param {integer} y     - Y co-ordinate (0 - 7) bottom to top
      *  @param {integer} [ink] - Pixel color: 1 = 'white', 0 = black. NOTE inverse video mode reverses this. Default: 1
      *  @param {bool}    [xor] - Whether an underlying pixel already of color ink should be inverted. Default: false
      *
@@ -512,31 +512,31 @@ class HT16K33Matrix {
         if (ink != 1 && ink != 0) ink = 1;
         if (_inverseVideoFlag) ink = ((ink == 1) ? 0 : 1);
 
-        local row = _buffer[x];
+        local col = _buffer[x];
 
         if (ink == 1) {
             // We want to set the pixel
-            local bit = row & (1 << (7 - y));
+            local bit = col & (1 << y);
             if (bit > 0 && xor) {
                 // Pixel is already set, but 'xor' is true so clear the pixel
-                row = row & (0xFF - (1 << (7 - y)));
+                col = col & (0xFF - (1 << y));
             } else {
                 // Pixel is clear so set it
-                row = row | (1 << (7 - y));
+                col = col | (1 << y);
             }
         } else {
             // We want to clear the pixel
-            local bit = row & (1 << (7 - y));
+            local bit = col & (1 << y);
             if (bit == 0 && xor) {
                 // Pixel is already clear, but 'xor' is true so invert the pixel
-                row = row | (1 << (7 - y));
+                col = col | (1 << y);
             } else {
                 // Pixel is set so clear it
-                row = row & (0xFF - (1 << (7 - y)));
+                col = col & (0xFF - (1 << y));
             }
         }
 
-        _buffer[x] = row;
+        _buffer[x] = col;
         return this;
     }
 
