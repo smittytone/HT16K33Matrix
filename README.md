@@ -1,4 +1,4 @@
-# HT16K33Matrix 2.1.0 #
+# HT16K33Matrix 3.0.0 #
 
 Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http://www.adafruit.com/products/1854) based on the Holtek HT16K33 controller. The LED communicates over any imp I&sup2;C bus.
 
@@ -53,7 +53,8 @@ led.init(8, -90);
 
 ### displayIcon(*glyphMatrix[, center]*) ###
 
-Call *displayIcon()* to write an non-standard character or graphic to the matrix. The character is passed as an array containing one to eight 8-bit integer values, each value a bit pattern for one of the *columns* making up the character. Each column value’s bits are set or unset according to the diagram below, ie. bit 0 is the topmost pixel of the column and bit 7 is the lowest pixel of the column.
+Call *displayIcon()* to write an non-standard character or graphic to the matrix. The character is passed as an array containing one to eight 8-bit integer values, each value a bit pattern for one of the *columns* making up the character. Each column value’s bits are set or unset according to the diagram below, ie. bit 0 is the bottom pixel of the column and bit 7 is the top
+ pixel of the column.
 
 ![Glyph Matrix](./glyph.png)
 
@@ -67,7 +68,7 @@ If `true` is passed into the optional parameter *center*, the glyph will be cent
 
 ```squirrel
 // Display a smiley on the matrix
-local smiley = [0x3C, 0x42, 0x95, 0xA1, 0xA1, 0x95, 0x42, 0x3C];
+local smiley = "\x3C\x42\xA9\x85\x85\xA9\x42\x3C";
 led.displayIcon(smiley);
 ```
 
@@ -105,11 +106,11 @@ Once defined a user-defined character can be presented using *displayCharacter()
 #### Example ####
 
 ```squirrel
-local smiley = [0x3C, 0x42, 0x95, 0xA1, 0xA1, 0x95, 0x42, 0x3C];
-local smileyChar = 0;
-led.defineCharacter(smileyChar, smiley);
+local smiley = "\x3C\x42\xA9\x85\x85\xA9\x42\x3C";
+local smileyCode = 0;
+led.defineCharacter(smileyCode, smiley);
 
-local displayString = "Help! I'm being chased by a...     + smileyChar.tochar() + "    ";
+local displayString = "Help! I'm being chased by a...     + smileyCode.tochar() + "    ";
 led.displayLine(displayString);
 ```
 
@@ -128,12 +129,13 @@ The optional parameter *xor* is a Boolean value. The default is `false`, but if 
 ```squirrel
 // Draw a border around the matrix edge
 for (local x = 0 ; x < 8 ; ++x) {
-if (x == 0 || x == 7) {
-    for (local y = 0 ; y < 8 ; ++y) {
-        led.plot(x, y, 1);
+    if (x == 0 || x == 7) {
+        for (local y = 0 ; y < 8 ; ++y) {
+            led.plot(x, y, 1);
+        }
+    } else {
+        led.plot(x, 0, 1).plot(x, 7, 1);
     }
-} else {
-    led.plot(x, 0, 1).plot(x, 7, 1);
 }
 
 led.draw();
@@ -208,16 +210,17 @@ The display can be turned on by calling *powerUp()*.
 
 ## Release Notes ##
 
-- 2.1.0 *Unreleased*
-    - Refactor the pixel-processing column ops
+- 3.0.0 *Unreleased*
+    - Refactor the pixel-processing column ops.
+    - Move LED co-ordinate origin to bottom left (from top left).
 - 2.0.0 *01 March 2019*
-    - Namespace matrix constants via *HT16K33_MATRIX_CLASS* enum
+    - Namespace matrix constants via *HT16K33_MATRIX_CLASS* enum.
 - 1.4.1 *31 January 2019*
-    - Reduce width of minus character
+    - Reduce width of minus character.
 - 1.4.0 *19 December 2018*
-    - Add *setDisplayFlash()* method
+    - Add *setDisplayFlash()* method.
     - Add *setDebug()* method
-    - Further inverse video fixes
+    - Further inverse video fixes.
 - 1.3.1 *22 November 2018*
     - Fix inverse video
 - 1.3.0 *16 November 2018*

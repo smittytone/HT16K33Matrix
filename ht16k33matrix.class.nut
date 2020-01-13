@@ -528,10 +528,8 @@ class HT16K33Matrix {
             // We want to clear the pixel
             local bit = col & (1 << y);
             if (bit == 0 && xor) {
-                // Pixel is already clear, but 'xor' is true so invert the pixel
                 col = col | (1 << y);
             } else {
-                // Pixel is set so clear it
                 col = col & (0xFF - (1 << y));
             }
         }
