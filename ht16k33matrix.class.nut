@@ -33,7 +33,7 @@ class HT16K33Matrix {
      * @property {string} VERSION - The library version
      *
      */
-    static VERSION = "2.1.0";
+    static VERSION = "3.0.0";
 
     /**
      * @private
