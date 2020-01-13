@@ -630,7 +630,6 @@ class HT16K33Matrix {
      *
      */
     function _flip(v) {
-        server.log("_flip() called");
         local a = 0;
         local b = 0;
 
