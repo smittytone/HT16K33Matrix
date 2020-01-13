@@ -1,9 +1,9 @@
 /**
  * HT16K33 registers and HT16K33-specific variables
- * 
+ *
  * @enum
  *
- */ 
+ */
 enum HT16K33_MATRIX_CLASS {
         // Command registers
         REGISTER_DISPLAY_ON  = "\x81",
@@ -31,16 +31,17 @@ class HT16K33Matrix {
 
     /**
      * @property {string} VERSION - The library version
-     * 
-     */    
-    static VERSION = "2.0.0";
+     *
+     */
+    static VERSION = "2.1.0";
 
     /**
      * @private
      *
      * @property {array} _pcharset - A proportionally spaced character set
-     * 
-     */    
+     *                               NOTE Values are columns
+     *
+     */
     static _pcharset = [
         "\x00\x00",              // space - Ascii 32
         "\xfa",                  // !
@@ -171,7 +172,7 @@ class HT16K33Matrix {
      *  @param {imp::i2c} impI2Cbus    - Whichever configured imp I2C bus is to be used for the HT16K33
      *  @param {integer}  [i2cAddress] - The HT16K33's I2C address. Default: 0x70
      *  @param {bool}     [debug ]     - Set/unset to log/silence extra debug messages. Default: false
-     *  
+     *
      *  @returns {instance} this
      *
      */
@@ -200,7 +201,7 @@ class HT16K33Matrix {
      *
      *  @param {integer} [brightness] - Display brightness, 1-15. Default: 15
      *  @param {integer} [angle]      - Display auto-rotation angle, 0 to -360 degrees. Default: 0
-     *  
+     *
      */
     function init(brightness = 15, angle = 0) {
         // Angle range can be -360 to + 360 - ignore values beyond this
@@ -230,7 +231,7 @@ class HT16K33Matrix {
      *  Sets the matrix LED brightness
      *
      *  @param {integer} [brightness] - Display brightness, 1-15. Default: 15
-     *  
+     *
      */
     function setBrightness(brightness = 15) {
         // Check argument type/range
@@ -258,13 +259,13 @@ class HT16K33Matrix {
      *  Sets the matrix LED to inverse (black on colour) or regular video
      *
      *  @param {bool} [state] - Whether inverse video is set (true) or unset (false). Default: true
-     *  
+     *
      */
     function setInverseVideo(state = true) {
         // Check argument type
         if (typeof state != "bool") state = true;
-        if (_debug) _log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
         if (_inverseVideoFlag != state) {
+            if (_debug) _log(format("Switching the HT16K33 Matrix to %s", (state ? "inverse video" : "normal video")));
             // We're changing the video mode, so update what's on the LED
             for (local i = 0 ; i < 8 ; i++) _buffer[i] = ~_buffer[i];
             _writeDisplay();
@@ -277,7 +278,7 @@ class HT16K33Matrix {
      *
      *  @param {bool} [state]       - Whether debugging is enabled (true) or not (false). Default: true
      *  @param {bool} [showAddress] - Whether debug messages add I2C address (true) or not (false). Default: true
-     *  
+     *
      */
     function setDebug(state = true, showAddress = null) {
         // Check arguments/values
@@ -291,8 +292,9 @@ class HT16K33Matrix {
      *  Displays a custom character on the matrix
      *
      *  @param {string|blob|array} glyphMatrix - 1-8 8-bit values defining a pixel image. The data is passed as columns
+     *                                           0 through 7, left to right. Bit 0 is at the bottom, bit 7 at the top
      *  @param {bool}              [center]    - Whether the icon should be displayed centred on the screen. Default: false
-     *  
+     *
      */
     function displayIcon(glyphMatrix, center = false) {
         local type = typeof glyphMatrix;
@@ -307,10 +309,7 @@ class HT16K33Matrix {
         }
 
         _buffer = blob(8);
-
-        if (_inverseVideoFlag) {
-            for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
-        }
+        if (_inverseVideoFlag) _fill();
 
         for (local i = 0 ; i < glyphMatrix.len() ; i++) {
             local a = i;
@@ -326,7 +325,7 @@ class HT16K33Matrix {
      *
      *  @param {integer} [asciiValue] - Character Ascii code. Default: 32 (space)
      *  @param {bool}    [center]     - Whether to center the character (true) or left-align (false). Default: false
-     *  
+     *
      */
     function displayCharacter(asciiValue = 32, center = false) {
         displayChar(asciiValue, center);
@@ -336,7 +335,7 @@ class HT16K33Matrix {
         // Old method name, retained for compatibility
         // See displayCharacter() for details
         local inputMatrix;
-        
+
         if (asciiValue < 32) {
             // A user-definable character has been chosen
             try {
@@ -347,21 +346,18 @@ class HT16K33Matrix {
             }
         } else {
             // A standard character has been chosen
-            asciiValue = asciiValue - 32;
+            asciiValue -= 32;
             if (asciiValue < 0 || asciiValue > _alphaCount) asciiValue = 0;
             inputMatrix = _pcharset[asciiValue];
         }
 
         _buffer = blob(8);
-
-        if (_inverseVideoFlag) {
-            for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
-        }
+        if (_inverseVideoFlag) _fill();
 
         for (local i = 0 ; i < inputMatrix.len() ; i++) {
             local a = i;
             if (center) a = i + ((8 - inputMatrix.len()) / 2).tointeger();
-            _buffer[a] = _inverseVideoFlag ? _flip(~inputMatrix[i]) : _flip(inputMatrix[i]);
+            _buffer[a] = _inverseVideoFlag ? ~inputMatrix[i] : inputMatrix[i];
         }
 
         _writeDisplay();
@@ -371,7 +367,7 @@ class HT16K33Matrix {
      *  Bit-scroll through the characters in a string
      *
      *  @param {string} line - A string of text
-     *  
+     *
      */
     function displayLine(line) {
         // Check argument type/value
@@ -391,10 +387,10 @@ class HT16K33Matrix {
                 }
             } else {
                 glyph = _pcharset[character - 32];
-                
+
                 // Add a blank column spacer
                 // NOTE we'll convert for inverse video later
-                glyph = glyph + "\x00";
+                glyph += "\x00";
             }
 
             foreach (column, columnValue in glyph) {
@@ -403,13 +399,11 @@ class HT16K33Matrix {
                 local increment = 1;
                 local outputFrame = blob(8);
 
-                if (_inverseVideoFlag) {
-                    for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
-                }
+                if (_inverseVideoFlag) _fill();
 
                 for (local k = 0 ; k < 8 ; k++) {
                     if (cursor < glyphToDraw.len()) {
-                        outputFrame[k] = _flip(glyphToDraw[cursor]);
+                        outputFrame[k] = glyphToDraw[cursor];
                         ++cursor;
                     } else {
                         if (index + increment < line.len()) {
@@ -422,11 +416,11 @@ class HT16K33Matrix {
                                 }
                             } else {
                                 glyphToDraw = _pcharset[line[index + increment] - 32];
-                                glyphToDraw = glyphToDraw + "\x00";
+                                glyphToDraw += "\x00";
                             }
                             increment++;
                             cursor = 1;
-                            outputFrame[k] = _flip(glyphToDraw[0]);
+                            outputFrame[k] = glyphToDraw[0];
                         }
                     }
                 }
@@ -445,8 +439,9 @@ class HT16K33Matrix {
      *  Set a user-definable chararacter for later use
      *
      *  @param  {integer}           [asciiCode] - Character's assigned Ascii code 0-31. Default: 0
-     *  @param  {string|blob|array} glyphMatrix - 1-8 8-bit values defining a pixel image. The data is passed as columns
-     *  
+     *  @param  {string|blob|array} glyphMatrix - 1-8 8-bit values defining a pixel image. The data is passed as columns,
+     *                                            with bit 0 at the bottom and bit 7 at the top
+     *
      */
     function defineCharacter(asciiCode = 0, glyphMatrix = null) {
         defineChar(asciiCode, glyphMatrix);
@@ -478,10 +473,10 @@ class HT16K33Matrix {
                 _log("Setting user-defined character " + asciiCode);
             }
         }
-        
+
         // Convert input array to a string of bytes
         local matrix = "";
-        for (local i = 0 ; i < glyphMatrix.len() ; i++) matrix = matrix + _flip(glyphMatrix[i]).tochar();
+        for (local i = 0 ; i < glyphMatrix.len() ; i++) matrix += glyphMatrix[i].tochar();
 
         // Save the string in the defchars table with the supplied Ascii code as its key
         if (asciiCode in _defchars) {
@@ -500,7 +495,7 @@ class HT16K33Matrix {
      *  @param {bool}    [xor] - Whether an underlying pixel already of color ink should be inverted. Default: false
      *
      *  @returns {imstance} this
-     *  
+     *
      */
     function plot(x, y, ink = 1, xor = false) {
         // Check argument range and value
@@ -549,7 +544,7 @@ class HT16K33Matrix {
      *  Set the matrix to flash at one of three pre-defined rates
      *
      *  @param {integer} [flashRate] - Flash rate in Herz. Must be 0.5, 1 or 2 for a flash, or 0 for no flash. Default: 0
-     * 
+     *
      */
     function setDisplayFlash(flashRate = 0) {
         local values = [0, 2, 1, 0.5];
@@ -573,17 +568,17 @@ class HT16K33Matrix {
 
     /**
      *  Clear the matrix buffer and write it to the display itself
-     * 
+     *
      */
     function clearDisplay() {
         _buffer = blob(8);
-        if (_inverseVideoFlag) for (local i = 0 ; i < 8 ; i++) _buffer[i] = 0xFF;
+        if (_inverseVideoFlag) _fill();
         _writeDisplay();
     }
 
     /**
      *  Write out the instance's buffer to the display itself
-     * 
+     *
      */
     function draw() {
         _writeDisplay();
@@ -591,7 +586,7 @@ class HT16K33Matrix {
 
     /**
      *  Turn the matrix off
-     * 
+     *
      */
     function powerDown() {
         if (_debug) _log("Turning the HT16K33 Matrix off");
@@ -601,7 +596,7 @@ class HT16K33Matrix {
 
     /**
      *  Turn the matrix on
-     * 
+     *
      */
     function powerUp() {
         if (_debug) _log("Turning the HT16K33 Matrix on");
@@ -612,36 +607,38 @@ class HT16K33Matrix {
     // ****** PRIVATE FUNCTIONS - DO NOT CALL ******
 
     /**
-     *  Takes the contents of _buffer and writes it to the LED matrix
-     * 
+     *  Takes the contents of _buffer and writes it to the LED matrix.
+     *  Data is sent column (one byte) by column, left to right (0-7)
+     *
      *  @private
-     *  
+     *
      */
     function _writeDisplay() {
         local dataString = HT16K33_MATRIX_CLASS.DISPLAY_ADDRESS;
         local writedata = clone(_buffer);
         if (_rotationAngle != 0) writedata = _rotateMatrix(writedata, _rotationAngle);
-        for (local i = 0 ; i < 8 ; i++) dataString = dataString + (_processByte(writedata[i])).tochar() + "\x00";
+        for (local i = 0 ; i < 8 ; i++) dataString += ((_processByte(writedata[i])).tochar() + "\x00");
         _led.write(_ledAddress, dataString);
     }
 
     /**
      *  Manipulate pre-defined character matrices ahead of rotation by changing their byte order
-     * 
+     *
      *  @private
-     *  
+     *
      *  @param {integer} v - The value to be flipped
      *
      *  @returns {integer} The flipped value
      *
      */
     function _flip(v) {
+        server.log("_flip() called");
         local a = 0;
         local b = 0;
 
         for (local i = 0 ; i < 8 ; i++) {
             a = v & (1 << i);
-            if (a > 0) b = b + (1 << (7 - i));
+            if (a > 0) b += (1 << (7 - i));
         }
 
         return b;
@@ -650,9 +647,9 @@ class HT16K33Matrix {
     /**
      *  Rotate an 8-integer matrix through the specified angle in 90-degree increments:
      *  0 = none, 1 = 90 clockwise, 2 = 180, 3 = 90 anti-clockwise
-     * 
+     *
      *  @private
-     *  
+     *
      *  @param {blob|string|array} inputMatrix - The matrix to be rotated
      *  @param {integer}           [angle]     - The angle of rotation. Default: 0
      *
@@ -705,16 +702,22 @@ class HT16K33Matrix {
 
     /**
      *  Adafruit 8x8 matrix requires some data manipulation:
-     *  Bits 7-0 of each line need to be sent 0 through 7, and bit 0 rotate to bit 7
-     * 
+     *  Bits 7-0 of each line need to be sent 0 through 7, and bit 0 rotated to bit 7
+     *
      *  @private
-     *  
+     *
      *  @param {integer} byteValue - The value to be processed
      *
      *  @returns {integer} The processed value
      *
      */
     function _processByte(byteValue) {
+        local bit0 = byteValue & 0x01;
+        local result = byteValue >> 1;
+        if (bit0 > 0) result += 0x80;
+        return result;
+
+        /*
         local result = 0;
         local a = 0;
         for (local i = 0 ; i < 8 ; i++) {
@@ -732,15 +735,16 @@ class HT16K33Matrix {
         result = result >> 1;
 
         // if old bit 0 is set, set new bit 7
-        if (a > 0) result = result + 0x80;
+        if (a > 0) result += 0x80;
         return result;
+        */
     }
 
     /**
      *  Write the message to the logger, prefixing with the LED's I2C address if required to ID units in a multi-LED display
-     * 
+     *
      *  @private
-     *  
+     *
      *  @param {string} message - The string to be written
      *
      */
@@ -751,15 +755,27 @@ class HT16K33Matrix {
 
     /**
      *  Write the error message to the logger, prefixing with the LED's I2C address if required to ID units in a multi-LED display
-     * 
+     *
      *  @private
-     *  
+     *
      *  @param {string} message - The string to be written
      *
      */
     function _error(message) {
         if (_debugShowI2C) message = format("[%02X] ", (_ledAddress >> 1)) + message;
         _logger.error(message);
+    }
+
+    /**
+     *  Fill the buffer with the specified value
+     *
+     *  @private
+     *
+     *  @param {integer} value - The pixel fill value
+     *
+     */
+    function _fill(value = 0xFF) {
+        for (local i = 0 ; i < 8 ; i++) _buffer[i] = value;
     }
 
     // ********** EXPERIMENTAL ***********
@@ -848,7 +864,7 @@ class HT16K33Matrix {
             for (local i = sliceIndex ; i < glyph.len() ; i++) {
                 // Display however many rows of the 8x8 matrix will be taken up
                 // by the visible rows of the lead character glyph
-                this._buffer[index] = _flip(glyph[i]);
+                this._buffer[index] = glyph[i];
                 index++;
 
                 // Break if the character glyph contains more rows than there
