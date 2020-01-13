@@ -1,4 +1,4 @@
-# HT16K33Matrix 2.0.0 #
+# HT16K33Matrix 2.1.0 #
 
 Hardware driver for [Adafruit 1.2-inch monochrome 8x8 LED matrix display](http://www.adafruit.com/products/1854) based on the Holtek HT16K33 controller. The LED communicates over any imp I&sup2;C bus.
 
@@ -208,30 +208,32 @@ The display can be turned on by calling *powerUp()*.
 
 ## Release Notes ##
 
-- 2.0.0 &mdash; *01 March 2019*
+- 2.1.0 *Unreleased*
+    - Refactor the pixel-processing column ops
+- 2.0.0 *01 March 2019*
     - Namespace matrix constants via *HT16K33_MATRIX_CLASS* enum
-- 1.4.1 &mdash; *31 January 2019*
+- 1.4.1 *31 January 2019*
     - Reduce width of minus character
-- 1.4.0 &mdash; *19 December 2018*
+- 1.4.0 *19 December 2018*
     - Add *setDisplayFlash()* method
     - Add *setDebug()* method
     - Further inverse video fixes
-- 1.3.1 &mdash; *22 November 2018*
+- 1.3.1 *22 November 2018*
     - Fix inverse video
-- 1.3.0 &mdash; *16 November 2018*
+- 1.3.0 *16 November 2018*
     - Optimisations: use blobs and strings in place of arrays where possible.
-- 1.2.6 &mdash; *June 2018*
+- 1.2.6 *June 2018*
     - Code improvements; additional comments.
-- 1.2.5 &mdash; *May 2018*
+- 1.2.5 *May 2018*
     - Add support for [`seriallog.nut`](https://github.com/smittytone/generic/blob/master/seriallog.nut) to enable serial logging if the application makes use of it.
         - **Note** Class will log to *server.log()* if *seriallog* is not present.
-- 1.2.4 &mdash; *March 2018*
+- 1.2.4 *March 2018*
     - Store user-definable characters in a table rather than an array to conserve memory.
-- 1.2.3 &mdash; *October 2017*
+- 1.2.3 *October 2017*
     - Minor code change: rename constants to be class-specific.
-- 1.2.2 &mdash; *May 2017*
+- 1.2.2 *May 2017*
     - Streamline brightness control as per other HT16K33 libraries.
-- 1.2.1 &mdash; *April 2017*
+- 1.2.1 *April 2017*
     - Rename *defineChar()* and *displayChar()*, respectively, *defineCharacter()* and *displayCharacter()*. The old method names are retained for backward compatibility.
 - 1.2.0
     - Add *plot()* method.
