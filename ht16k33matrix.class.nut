@@ -39,7 +39,8 @@ class HT16K33Matrix {
      * @private
      *
      * @property {array} _pcharset - A proportionally spaced character set
-     *                               NOTE Values are columns
+     *                               NOTE Values are columns, 1 bit per pixel, bit 0
+     *                                    at the bottom left of the matrix
      *
      */
     static _pcharset = [
@@ -225,6 +226,8 @@ class HT16K33Matrix {
         powerUp();
         setBrightness(brightness);
         clearDisplay();
+
+        _alphaCount = _pcharset.len();
     }
 
     /**
@@ -381,7 +384,7 @@ class HT16K33Matrix {
             if (character < 32) {
                 if (!(character in _defchars) || (typeof _defchars[character] != "string")) {
                     if (_debug) _log("Use of undefined character (" + character + ") in HT16K33Matrix.displayLine()");
-                    glyph = _pcharset[0];
+                    glyph = _pcharset[63];
                 } else {
                     glyph = _defchars[character];
                 }
@@ -390,7 +393,7 @@ class HT16K33Matrix {
 
                 // Add a blank column spacer
                 // NOTE we'll convert for inverse video later
-                glyph += "\x00";
+                if (glyph.len() < 8) glyph += "\x00";
             }
 
             foreach (column, columnValue in glyph) {
@@ -620,28 +623,6 @@ class HT16K33Matrix {
     }
 
     /**
-     *  Manipulate pre-defined character matrices ahead of rotation by changing their byte order
-     *
-     *  @private
-     *
-     *  @param {integer} v - The value to be flipped
-     *
-     *  @returns {integer} The flipped value
-     *
-     */
-    function _flip(v) {
-        local a = 0;
-        local b = 0;
-
-        for (local i = 0 ; i < 8 ; i++) {
-            a = v & (1 << i);
-            if (a > 0) b += (1 << (7 - i));
-        }
-
-        return b;
-    }
-
-    /**
      *  Rotate an 8-integer matrix through the specified angle in 90-degree increments:
      *  0 = none, 1 = 90 clockwise, 2 = 180, 3 = 90 anti-clockwise
      *
@@ -713,28 +694,6 @@ class HT16K33Matrix {
         local result = byteValue >> 1;
         if (bit0 > 0) result += 0x80;
         return result;
-
-        /*
-        local result = 0;
-        local a = 0;
-        for (local i = 0 ; i < 8 ; i++) {
-            // Run through each bit in byteValue and set the
-            // opposite bit in result accordingly, ie. bit 0 -> bit 7,
-            // bit 1 -> bit 6, etc.
-            a = byteValue & (1 << i);
-            if (a > 0) result = result + (1 << (7 - i));
-        }
-
-        // Get bit 0 of result
-        result & 0x01;
-
-        // Shift result bits one bit to right
-        result = result >> 1;
-
-        // if old bit 0 is set, set new bit 7
-        if (a > 0) result += 0x80;
-        return result;
-        */
     }
 
     /**
@@ -792,7 +751,7 @@ class HT16K33Matrix {
             return;
         }
 
-        // Strings/blobs must be the same length
+        // Adjacent strings/blobs must be the same length
         for (local i = 1 ; i < frames.len() ; i++) {
             local a = frames[i - 1];
             local b = frames[i];
@@ -845,17 +804,17 @@ class HT16K33Matrix {
 
             if (c < 32) {
                 // Display a user-defined character
-                if (this._defchars[c] == -1 || (typeof this._defchars[c] != "array")) {
+                if (this._defchars[c] == -1 || (typeof this._defchars[c] != "string")) {
                     // Character not defined; present a space instead
                     glyph = this._pcharset[0];
-                    glyph = glyph + "\x00";
+                    glyph += "\x00";
                 } else {
                     glyph = this._defchars[c];
                 }
             } else {
                 // Display a standard Ascii character
                 glyph = this._pcharset[c - 32];
-                glyph = glyph + "\x00";
+                glyph += "\x00";
             }
 
             for (local i = sliceIndex ; i < glyph.len() ; i++) {
@@ -885,17 +844,17 @@ class HT16K33Matrix {
 
         if (c < 32) {
             // User-defined character?
-            if (this._defchars[c] == -1 || (typeof this._defchars[c] != "array")) {
+            if (this._defchars[c] == -1 || (typeof this._defchars[c] != "string")) {
                 // Yes, but it's undefined so use a space
                 glyph = this._pcharset[0];
-                glyph = glyph + "\x00";
+                glyph += "\x00";
             } else {
                 glyph = clone(this._defchars[c]);
             }
         } else {
             // No, so use a standard Ascii character
             glyph = this._pcharset[c - 32];
-            glyph = glyph + "\x00";
+            glyph += "\x00";
         }
 
         // If the start row is greater than the characters length, we
@@ -917,9 +876,7 @@ class HT16K33Matrix {
                 _aSeqIndex = 0;
                 this._aSliceIndex++;
             }
-        }
-        else
-        {
+        } else {
             _aCb();
         }
 
