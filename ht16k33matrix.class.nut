@@ -324,6 +324,16 @@ class HT16K33Matrix {
     }
 
     /**
+     *  Get a reference to the buffer for direct manipulation of the image
+     *
+     *  @returns {blob} The display buffer
+     *
+     */
+    function getIcon() {
+        return _buffer;
+    }
+
+    /**
      *  Display a single character specified by its Ascii value on the matrix
      *
      *  @param {integer} [asciiValue] - Character Ascii code. Default: 32 (space)

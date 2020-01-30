@@ -141,6 +141,22 @@ for (local x = 0 ; x < 8 ; ++x) {
 led.draw();
 ```
 
+### getIcon() ###
+
+This method returns the display’s buffer should you need to manipulate it directly. Changes made to the buffer by your application code will only be reflected on the LED itself when you subsequently call [*draw()*](#draw).
+
+#### Example ####
+
+```squirrek
+local buffer = display.getIcon();
+if (isPM) {
+    buffer[6] = 0x1E;
+    buffer[7] = 0x18;
+} else {
+    buffer[6] = 0x16;
+    buffer[7] = 0x1E;
+}
+```
 ### draw() ###
 
 This method causes the contents of the display’s buffer to be rendered on the display. See *plot()* for more information.
@@ -213,6 +229,7 @@ The display can be turned on by calling *powerUp()*.
 - 3.0.0 *Unreleased*
     - Refactor the pixel-processing column ops.
     - Move LED co-ordinate origin to bottom left (from top left).
+    - Add [*getIcon()*](#geticon) method.
 - 2.0.0 *01 March 2019*
     - Namespace matrix constants via *HT16K33_MATRIX_CLASS* enum.
 - 1.4.1 *31 January 2019*
