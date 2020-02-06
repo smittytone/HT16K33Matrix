@@ -226,9 +226,9 @@ The display can be turned on by calling *powerUp()*.
 
 ## Release Notes ##
 
-- 3.0.0 *Unreleased*
+- 3.0.0 *6 February 2020*
+    - Move LED co-ordinate origin to bottom left (from top left) **Breaking Change**
     - Refactor the pixel-processing column ops.
-    - Move LED co-ordinate origin to bottom left (from top left).
     - Add [*getIcon()*](#geticon) method.
 - 2.0.0 *01 March 2019*
     - Namespace matrix constants via *HT16K33_MATRIX_CLASS* enum.
